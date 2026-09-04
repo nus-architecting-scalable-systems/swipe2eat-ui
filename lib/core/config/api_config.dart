@@ -18,6 +18,4 @@ class ApiConfig {
   static String get preferenceBaseUrl => '$baseUrl/preference';
 
   static String get dietaryOptionsUrl => '$preferenceBaseUrl/dietary/options';
-
-  static String get llmChatUrl => '$baseUrl/llm/chat';
 }

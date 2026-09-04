@@ -140,6 +140,7 @@ void main() {
       expect(find.text('Singapore'), findsOneWidget);
       expect(navLabelColor(tester, 'Discover'), const Color(0xFFFF6B4A));
       expect(navLabelColor(tester, 'Favorites'), const Color(0xFF9CA3AF));
+      expect(find.text('Ask AI'), findsNothing);
     });
 
     testWidgets('supports favorites as an initial tab', (tester) async {
@@ -150,14 +151,7 @@ void main() {
       expect(navLabelColor(tester, 'Discover'), const Color(0xFF9CA3AF));
     });
 
-    testWidgets('supports chat and profile as initial tabs', (tester) async {
-      await pumpShell(tester, initialTab: MainTab.chat);
-      expect(find.text('Ask me for food recommendations!'), findsOneWidget);
-      expect(navLabelColor(tester, 'Ask AI'), const Color(0xFFFF6B4A));
-
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump();
-
+    testWidgets('supports profile as an initial tab', (tester) async {
       await pumpShell(tester, initialTab: MainTab.profile);
       expect(find.text('Personal Info'), findsOneWidget);
       expect(navLabelColor(tester, 'Profile'), const Color(0xFFFF6B4A));
@@ -174,13 +168,6 @@ void main() {
       expect(find.text('1 dishes saved'), findsOneWidget);
       expect(navLabelColor(tester, 'Favorites'), const Color(0xFFFF6B4A));
       expect(navLabelColor(tester, 'Discover'), const Color(0xFF9CA3AF));
-
-      await tester.tap(find.text('Ask AI').last);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Ask me for food recommendations!'), findsOneWidget);
-      expect(navLabelColor(tester, 'Ask AI'), const Color(0xFFFF6B4A));
-      expect(navLabelColor(tester, 'Favorites'), const Color(0xFF9CA3AF));
 
       await tester.tap(find.text('Profile').last);
       await tester.pump();

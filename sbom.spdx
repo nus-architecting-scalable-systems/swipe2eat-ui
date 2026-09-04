@@ -187,33 +187,6 @@ LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
 
 
-FileName: lib/features/chat/models/chat_message.dart
-SPDXID: SPDXRef-chat-message-19
-FileType: SOURCE
-FileChecksum: SHA1: dda2f239c56f8d3a8cf86928e3ee8ea415ee82a7
-LicenseConcluded: NOASSERTION
-LicenseInfoInFile: NOASSERTION
-FileCopyrightText: NOASSERTION
-
-
-FileName: lib/features/chat/screens/chat_screen.dart
-SPDXID: SPDXRef-chat-screen-20
-FileType: SOURCE
-FileChecksum: SHA1: 0edaaaef7e8c6fff9918a4c647c4029842ba0a88
-LicenseConcluded: NOASSERTION
-LicenseInfoInFile: NOASSERTION
-FileCopyrightText: NOASSERTION
-
-
-FileName: lib/features/chat/services/chat_service.dart
-SPDXID: SPDXRef-chat-service-21
-FileType: SOURCE
-FileChecksum: SHA1: 69a33243bb6615f4018ba834572fe4e2d0a7cdb9
-LicenseConcluded: NOASSERTION
-LicenseInfoInFile: NOASSERTION
-FileCopyrightText: NOASSERTION
-
-
 FileName: lib/features/discover/discover_screen.dart
 SPDXID: SPDXRef-discover-screen-22
 FileType: SOURCE
@@ -359,4 +332,3 @@ FileCopyrightText: NOASSERTION
 
 
 Relationship: SPDXRef-pubspec-37 DEPENDENCY_MANIFEST_OF SPDXRef-Package-swipe2eat-ui
-

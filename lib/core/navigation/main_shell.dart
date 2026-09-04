@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import '../../features/discover/discover_screen.dart';
 import '../../features/favorites/favorites_screen.dart';
 import '../../features/profile/profile_screen.dart';
-import '../../features/chat/screens/chat_screen.dart';
 
-enum MainTab { discover, favorites, chat, profile }
+enum MainTab { discover, favorites, profile }
 
 class MainShell extends StatefulWidget {
   final MainTab initialTab;
@@ -36,7 +35,6 @@ class _MainShellState extends State<MainShell> {
           children: const [
             DiscoverScreen(showBottomNav: false),
             FavoritesScreen(showBottomNav: false),
-            ChatScreen(showBottomNav: false),
             ProfileScreen(showBottomNav: false),
           ],
         ),
@@ -68,8 +66,7 @@ class _BottomNav extends StatelessWidget {
         children: [
           _navBtn(icon: Icons.restaurant_menu, label: "Discover", index: 0),
           _navBtn(icon: Icons.favorite_border, label: "Favorites", index: 1),
-          _navBtn(icon: Icons.chat_bubble_outline, label: "Ask AI", index: 2),
-          _navBtn(icon: Icons.person_outline, label: "Profile", index: 3),
+          _navBtn(icon: Icons.person_outline, label: "Profile", index: 2),
         ],
       ),
     );

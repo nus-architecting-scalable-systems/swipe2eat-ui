@@ -8,13 +8,13 @@ Latest local verification from this workspace:
 
 ```text
 flutter analyze: no issues
-flutter test: 298 tests passed
+flutter test: 270 tests passed
 flutter test integration_test/favorites_location_link_test.dart: 2 tests passed
 ```
 
 Test files:
 
-- 38 unit/widget test files under `test/`
+- 35 unit/widget test files under `test/`
 - 2 integration test files under `integration_test/`
 - shared HTTP/image stubs under `test/test_helpers/`
 
@@ -52,10 +52,6 @@ test/
       token_storage_test.dart
       user_auth_service_test.dart
       user_model_test.dart
-    chat/
-      chat_message_test.dart
-      chat_screen_test.dart
-      chat_service_test.dart
     discover/
       discover_screen_test.dart
       food_service_test.dart
@@ -113,10 +109,9 @@ integration_test/
 - FoodDetailScreen renders the map location link from `address` when available.
 - FoodDetailScreen falls back to `restaurantName` for the map location link when `address` is missing.
 
-### Profile, Chat, And Onboarding
+### Profile And Onboarding
 
 - Profile display, editing, local fallback, logout, and account deletion flows.
-- Chat message parsing, chat service calls, and recommendation rendering.
 - Onboarding cuisine, budget, spice, dietary, and completion screens.
 
 ## Integration Tests

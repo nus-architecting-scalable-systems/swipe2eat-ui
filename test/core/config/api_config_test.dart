@@ -17,7 +17,6 @@ void main() {
         ApiConfig.dietaryOptionsUrl,
         '${ApiConfig.baseUrl}/preference/dietary/options',
       );
-      expect(ApiConfig.llmChatUrl, '${ApiConfig.baseUrl}/llm/chat');
     });
   });
 }

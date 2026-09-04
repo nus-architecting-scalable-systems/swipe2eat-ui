@@ -1,6 +1,6 @@
 # Swipe2Eat UI
 
-A Flutter app for discovering, swiping, saving, and revisiting food recommendations. The app integrates with the shared backend for authentication, preferences, food discovery, favorites, chat recommendations, and profile management.
+A Flutter app for discovering, swiping, saving, and revisiting food recommendations. The app integrates with the shared backend for authentication, preferences, food discovery, favorites, and profile management.
 
 ## Contents
 
@@ -25,7 +25,6 @@ A Flutter app for discovering, swiping, saving, and revisiting food recommendati
 - Food detail screen with image, rating, price, tags, description, and map location link.
 - Profile screen for user details, preferences, logout, and account deletion.
 - Onboarding flow for cuisine, budget, spice, dietary type, and allergens.
-- Chat recommendations backed by the LLM chat API.
 - Responsive Flutter UI for iOS, Android, web, and desktop-capable builds.
 
 ### Authentication
@@ -149,7 +148,6 @@ lib/
     widgets/
   features/
     auth/
-    chat/
     discover/
     favorites/
     onboarding/
