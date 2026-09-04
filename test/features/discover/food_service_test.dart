@@ -58,7 +58,7 @@ void main() {
       expect(httpOverrides.requests, hasLength(1));
       expect(
         httpOverrides.requests.single.headers['authorization'],
-        'Bearer id-token',
+        'Bearer access-token',
       );
     });
 

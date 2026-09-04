@@ -19,12 +19,10 @@ class PreferencesService {
   static final preferencesUpdated = ValueNotifier<int>(0);
   static Future<void> _pendingSwipeQueue = Future.value();
 
-  /// Builds HTTP headers with AWS Cognito authentication.
-  /// Includes the ID token from Cognito for backend API authorization
+  /// Builds HTTP headers with the stored backend authentication token.
   static Future<Map<String, String>> _buildAuthHeaders() async {
     final headers = {'Content-Type': 'application/json'};
 
-    // Add Cognito ID token if available
     final authHeader = await TokenStorage.getAuthorizationHeader();
     if (authHeader != null) {
       headers['Authorization'] = authHeader;
@@ -152,14 +150,12 @@ class PreferencesService {
   /// Handles all error cases (404, 400, network errors) by returning false
   static Future<bool> hasUserPreferences() async {
     try {
-      final cognitoUserId = await TokenStorage.getUserId();
-      if (cognitoUserId == null || cognitoUserId.trim().isEmpty) {
+      final userId = await TokenStorage.getUserId();
+      if (userId == null || userId.trim().isEmpty) {
         return false;
       }
 
-      final uri = Uri.parse(
-        '${ApiConfig.preferenceBaseUrl}/users/$cognitoUserId',
-      );
+      final uri = Uri.parse('${ApiConfig.preferenceBaseUrl}/users/$userId');
       final res = await AuthenticatedHttpClient.get(
         uri,
         headers: await _buildAuthHeaders(),
@@ -197,15 +193,12 @@ class PreferencesService {
     String? spiceLevel,
   }) async {
     try {
-      // Use Cognito userId from TokenStorage
-      final cognitoUserId = await TokenStorage.getUserId();
-      if (cognitoUserId == null || cognitoUserId.trim().isEmpty) {
+      final userId = await TokenStorage.getUserId();
+      if (userId == null || userId.trim().isEmpty) {
         return false;
       }
 
-      final uri = Uri.parse(
-        '${ApiConfig.preferenceBaseUrl}/users/$cognitoUserId',
-      );
+      final uri = Uri.parse('${ApiConfig.preferenceBaseUrl}/users/$userId');
       final headers = await _buildAuthHeaders();
       final payloadMap = <String, dynamic>{
         'cuisines': cuisines,
@@ -235,13 +228,13 @@ class PreferencesService {
     required List<String> allergens,
   }) async {
     try {
-      final cognitoUserId = await TokenStorage.getUserId();
-      if (cognitoUserId == null || cognitoUserId.trim().isEmpty) {
+      final userId = await TokenStorage.getUserId();
+      if (userId == null || userId.trim().isEmpty) {
         return false;
       }
 
       final uri = Uri.parse(
-        '${ApiConfig.preferenceBaseUrl}/dietary/users/$cognitoUserId',
+        '${ApiConfig.preferenceBaseUrl}/dietary/users/$userId',
       );
       final headers = await _buildAuthHeaders();
       final payload = jsonEncode({
@@ -316,15 +309,12 @@ class PreferencesService {
   /// Returns the fetched preferences map if successful
   static Future<Map<String, dynamic>?> fetchPreferencesFromBackend() async {
     try {
-      // Use Cognito userId from TokenStorage
-      final cognitoUserId = await TokenStorage.getUserId();
-      if (cognitoUserId == null || cognitoUserId.trim().isEmpty) {
+      final userId = await TokenStorage.getUserId();
+      if (userId == null || userId.trim().isEmpty) {
         return null;
       }
 
-      final uri = Uri.parse(
-        '${ApiConfig.baseUrl}/preference/users/$cognitoUserId',
-      );
+      final uri = Uri.parse('${ApiConfig.baseUrl}/preference/users/$userId');
       final res = await AuthenticatedHttpClient.get(
         uri,
         headers: await _buildAuthHeaders(),

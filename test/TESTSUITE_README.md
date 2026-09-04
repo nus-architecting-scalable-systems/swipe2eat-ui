@@ -46,12 +46,11 @@ test/
   features/
     auth/
       auth_session_test.dart
-      cognito_service_test.dart
-      confirmation_screen_test.dart
       forgot_password_screen_test.dart
       sign_in_screen_test.dart
       sign_up_screen_test.dart
       token_storage_test.dart
+      user_auth_service_test.dart
       user_model_test.dart
     chat/
       chat_message_test.dart
@@ -94,10 +93,10 @@ integration_test/
 
 ### Auth
 
-- Cognito sign-up, confirmation, resend confirmation, forgot password, sign-in, refresh, and delete-user request handling.
+- Backend auth sign-up, sign-in, forgot-password, reset-password, and refresh request handling.
 - Auth session freshness and refresh behavior.
 - TokenStorage persistence and JWT-derived metadata.
-- Sign-in, sign-up, confirmation, and forgot-password screen behavior.
+- Sign-in, sign-up, and forgot-password screen behavior.
 
 ### Discover
 

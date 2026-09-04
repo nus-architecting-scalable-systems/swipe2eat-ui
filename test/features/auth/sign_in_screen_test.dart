@@ -13,11 +13,11 @@ void main() {
       expect(find.text('Sign In'), findsWidgets);
     });
 
-    testWidgets('has email input field', (WidgetTester tester) async {
+    testWidgets('has username input field', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(home: SignInScreen()));
 
       expect(find.byType(TextField), findsWidgets);
-      expect(find.text('Email'), findsOneWidget);
+      expect(find.text('Username'), findsOneWidget);
     });
 
     testWidgets('has password input field', (WidgetTester tester) async {
@@ -37,21 +37,21 @@ void main() {
       expect(passwordField.obscureText, true);
     });
 
-    testWidgets('email field is not obscured', (WidgetTester tester) async {
+    testWidgets('username field is not obscured', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(home: SignInScreen()));
 
       final textFields = find.byType(TextField);
-      final emailField = tester.widget<TextField>(textFields.at(0));
-      expect(emailField.obscureText, false);
+      final usernameField = tester.widget<TextField>(textFields.at(0));
+      expect(usernameField.obscureText, false);
     });
 
-    testWidgets('can enter email text', (WidgetTester tester) async {
+    testWidgets('can enter username text', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(home: SignInScreen()));
 
-      final emailField = find.byType(TextField).first;
-      await tester.enterText(emailField, 'test@example.com');
+      final usernameField = find.byType(TextField).first;
+      await tester.enterText(usernameField, 'test123');
 
-      expect(find.text('test@example.com'), findsOneWidget);
+      expect(find.text('test123'), findsOneWidget);
     });
 
     testWidgets('can enter password text', (WidgetTester tester) async {
@@ -63,14 +63,14 @@ void main() {
       expect(find.text('password123'), findsOneWidget);
     });
 
-    testWidgets('email field has email keyboard type', (
+    testWidgets('username field uses text keyboard type', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(MaterialApp(home: SignInScreen()));
 
       final textFields = find.byType(TextField);
-      final emailField = tester.widget<TextField>(textFields.at(0));
-      expect(emailField.keyboardType, TextInputType.emailAddress);
+      final usernameField = tester.widget<TextField>(textFields.at(0));
+      expect(usernameField.keyboardType, TextInputType.text);
     });
 
     testWidgets('has proper layout structure', (WidgetTester tester) async {

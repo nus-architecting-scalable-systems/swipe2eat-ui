@@ -67,7 +67,7 @@ void main() {
       expect(reply.recommendations.single.name, 'Laksa');
 
       final request = httpOverrides.requests.single;
-      expect(request.headers['authorization'], 'Bearer id-token');
+      expect(request.headers['authorization'], 'Bearer access-token');
       expect(request.headers['content-type'], 'application/json');
       expect(
         jsonDecode(request.body),

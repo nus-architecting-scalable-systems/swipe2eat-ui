@@ -50,13 +50,35 @@ void main() {
 
     test('clears auth tokens and the per-user backend-created flag', () async {
       SharedPreferences.setMockInitialValues({
+        'auth.idToken': 'id-token',
+        'auth.accessToken': 'access-token',
+        'auth.refreshToken': 'refresh-token',
+        'auth.idTokenExpiresAt': DateTime.now().toIso8601String(),
+        'auth.accessTokenExpiresAt': DateTime.now().toIso8601String(),
+        'auth.userId': 'user-123',
+        'auth.email': 'user@example.com',
+        'user.backendCreated.user-123': true,
+      });
+
+      await TokenStorage.clearTokens();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('auth.idToken'), isNull);
+      expect(prefs.getString('auth.accessToken'), isNull);
+      expect(prefs.getString('auth.refreshToken'), isNull);
+      expect(prefs.getString('auth.idTokenExpiresAt'), isNull);
+      expect(prefs.getString('auth.accessTokenExpiresAt'), isNull);
+      expect(prefs.getString('auth.userId'), isNull);
+      expect(prefs.getString('auth.email'), isNull);
+      expect(prefs.getBool('user.backendCreated.user-123'), isNull);
+    });
+
+    test('also clears legacy auth keys', () async {
+      SharedPreferences.setMockInitialValues({
         'cognito.idToken': 'id-token',
         'cognito.accessToken': 'access-token',
         'cognito.refreshToken': 'refresh-token',
-        'cognito.idTokenExpiresAt': DateTime.now().toIso8601String(),
-        'cognito.accessTokenExpiresAt': DateTime.now().toIso8601String(),
         'cognito.userId': 'user-123',
-        'cognito.email': 'user@example.com',
         'user.backendCreated.user-123': true,
       });
 
@@ -66,10 +88,7 @@ void main() {
       expect(prefs.getString('cognito.idToken'), isNull);
       expect(prefs.getString('cognito.accessToken'), isNull);
       expect(prefs.getString('cognito.refreshToken'), isNull);
-      expect(prefs.getString('cognito.idTokenExpiresAt'), isNull);
-      expect(prefs.getString('cognito.accessTokenExpiresAt'), isNull);
       expect(prefs.getString('cognito.userId'), isNull);
-      expect(prefs.getString('cognito.email'), isNull);
       expect(prefs.getBool('user.backendCreated.user-123'), isNull);
     });
   });

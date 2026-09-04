@@ -227,7 +227,7 @@ void main() {
       expect(options.allergens, equals(['Soy', 'Gluten']));
       expect(
         httpOverrides.requests.single.headers['authorization'],
-        'Bearer id-token',
+        'Bearer access-token',
       );
     });
 

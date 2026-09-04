@@ -46,7 +46,8 @@ void main() {
     void stubImageTraffic() {
       httpOverrides.addHandler(
         matcher: (request) =>
-            request.method == 'GET' && request.uri.host != 'dev.keiyam.me',
+            request.method == 'GET' &&
+            request.uri.host != Uri.parse(ApiConfig.baseUrl).host,
         handler: (_) => StubHttpResponse(
           statusCode: 200,
           bodyBytes: transparentPng,

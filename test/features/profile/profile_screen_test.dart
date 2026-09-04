@@ -479,11 +479,11 @@ void main() {
       await tester.pumpAndSettle();
 
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('cognito.userId'), isNull);
-      expect(prefs.getString('cognito.accessToken'), isNull);
-      expect(prefs.getString('cognito.idToken'), isNull);
-      expect(prefs.getString('cognito.refreshToken'), isNull);
-      expect(prefs.getString('cognito.email'), isNull);
+      expect(prefs.getString('auth.userId'), isNull);
+      expect(prefs.getString('auth.accessToken'), isNull);
+      expect(prefs.getString('auth.idToken'), isNull);
+      expect(prefs.getString('auth.refreshToken'), isNull);
+      expect(prefs.getString('auth.email'), isNull);
       expect(prefs.getBool('user.backendCreated.user-123'), isNull);
       expect(FavoritesStore.instance.favorites.value, isEmpty);
       expect(find.text('Sign In Screen'), findsOneWidget);
@@ -503,8 +503,8 @@ void main() {
       await tester.pumpAndSettle();
 
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('cognito.userId'), equals('user-123'));
-      expect(prefs.getString('cognito.refreshToken'), equals('refresh-token'));
+      expect(prefs.getString('auth.userId'), equals('user-123'));
+      expect(prefs.getString('auth.refreshToken'), equals('refresh-token'));
       expect(prefs.getBool('user.backendCreated.user-123'), isTrue);
       expect(FavoritesStore.instance.contains('food-1'), isTrue);
       expect(find.text('Profile'), findsOneWidget);
@@ -536,7 +536,7 @@ void main() {
       );
 
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('cognito.userId'), equals('user-123'));
+      expect(prefs.getString('auth.userId'), equals('user-123'));
       expect(find.text('Sign In Screen'), findsNothing);
     });
 
@@ -553,16 +553,6 @@ void main() {
         url: '${ApiConfig.baseUrl}/user/user-123',
         response: const StubHttpResponse(statusCode: 204, body: '{}'),
       );
-      httpOverrides.addHandler(
-        matcher: (request) =>
-            request.method == 'POST' &&
-            request.uri.toString() ==
-                'https://cognito-idp.ap-southeast-1.amazonaws.com/' &&
-            request.headers['x-amz-target'] ==
-                'AWSCognitoIdentityProviderService.DeleteUser',
-        handler: (_) => const StubHttpResponse(statusCode: 200, body: '{}'),
-      );
-
       await pumpProfile(tester);
       await openAction(tester, 'Delete Account');
 
@@ -571,7 +561,7 @@ void main() {
 
       final prefs = await SharedPreferences.getInstance();
       expect(find.text('Sign In Screen'), findsOneWidget);
-      expect(prefs.getString('cognito.userId'), isNull);
+      expect(prefs.getString('auth.userId'), isNull);
       expect(prefs.getString('prefs.budget'), isNull);
       expect(prefs.getString('prefs.spice'), isNull);
       expect(prefs.getStringList('prefs.cuisines'), isNull);

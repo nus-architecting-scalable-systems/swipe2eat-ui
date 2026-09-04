@@ -1,8 +1,8 @@
 // Sign Up Screen
 import 'package:flutter/material.dart';
 import '../../../core/widgets/gradient_button.dart';
-import '../services/cognito_service.dart';
-import 'confirmation_screen.dart';
+import '../services/token_storage.dart';
+import '../services/user_auth_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,7 +14,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -41,31 +41,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
     'Vientiane',
   ];
 
-  final List<String> _genderOptions = const [
-    'male',
-    'female',
-    'non-binary',
-    'prefer not to say',
-  ];
+  final List<String> _genderOptions = const ['male', 'female'];
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  String? _validateEmail(String? value) {
+  String? _validateUsername(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Email is required';
+      return 'Username is required';
     }
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
-    if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email';
+    if (!RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
+      return 'Username can only contain letters and digits';
     }
     return null;
   }
@@ -152,9 +144,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Call AWS Cognito SignUp API
-      final result = await CognitoService.signUp(
-        email: _emailController.text.trim(),
+      final result = await UserAuthService.signUp(
+        username: _usernameController.text.trim(),
         password: _passwordController.text,
         name: _nameController.text.trim(),
         city: _selectedCity,
@@ -164,16 +155,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (mounted) {
         if (result['success'] == true) {
-          // Account created successfully - navigate to confirmation screen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) =>
-                  ConfirmationScreen(email: _emailController.text.trim()),
+          final accessToken = result['accessToken'] as String?;
+          final idToken = (result['idToken'] as String?) ?? accessToken;
+          final refreshToken = result['refreshToken'] as String?;
+
+          if (accessToken != null &&
+              accessToken.isNotEmpty &&
+              idToken != null &&
+              idToken.isNotEmpty) {
+            final userId =
+                result['userId'] as String? ??
+                TokenStorage.extractUserIdFromToken(accessToken) ??
+                TokenStorage.extractUserIdFromToken(idToken);
+
+            await TokenStorage.saveTokens(
+              idToken: idToken,
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+              expiresIn: (result['expiresIn'] as num?)?.toInt(),
+              userId: userId,
+              email:
+                  (result['username'] as String?) ??
+                  _usernameController.text.trim(),
+            );
+
+            if (!mounted) return;
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            return;
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                result['message'] ??
+                    'Account created successfully. Please sign in.',
+              ),
+              backgroundColor: Colors.green,
             ),
           );
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/sign-in',
+            (route) => false,
+          );
         } else {
-          // Show error from Cognito
           setState(() {
             _generalError =
                 result['error'] ?? 'Sign up failed. Please try again.';
@@ -310,12 +335,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Email Field
+                // Username Field
                 TextFormField(
-                  controller: _emailController,
+                  controller: _usernameController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'you@example.com',
+                    labelText: 'Username',
+                    hintText: 'yourusername',
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -342,12 +367,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       borderSide: const BorderSide(color: Colors.red, width: 2),
                     ),
                     prefixIcon: const Icon(
-                      Icons.email_outlined,
+                      Icons.person_outline,
                       color: Color(0xFF6B7280),
                     ),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: _validateEmail,
+                  keyboardType: TextInputType.text,
+                  validator: _validateUsername,
                   enabled: !_isLoading,
                   textInputAction: TextInputAction.next,
                 ),

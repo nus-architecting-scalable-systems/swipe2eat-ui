@@ -29,8 +29,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     _fetchFavorites();
   }
 
-  /// Builds HTTP headers with AWS Cognito authentication.
-  /// Retrieves the ID token from TokenStorage and includes it in the Authorization header.
+  /// Builds HTTP headers with the stored backend authentication token.
   Future<Map<String, String>> _buildAuthHeaders() async {
     final headers = {'Content-Type': 'application/json'};
     final authHeader = await TokenStorage.getAuthorizationHeader();

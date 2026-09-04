@@ -178,15 +178,6 @@ LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
 
 
-FileName: lib/features/auth/services/cognito_service.dart
-SPDXID: SPDXRef-cognito-service-17
-FileType: SOURCE
-FileChecksum: SHA1: 1168b48c942be7cc2f3b47d8bb913a058a4b4d68
-LicenseConcluded: NOASSERTION
-LicenseInfoInFile: NOASSERTION
-FileCopyrightText: NOASSERTION
-
-
 FileName: lib/features/auth/services/token_storage.dart
 SPDXID: SPDXRef-token-storage-18
 FileType: SOURCE
@@ -368,5 +359,4 @@ FileCopyrightText: NOASSERTION
 
 
 Relationship: SPDXRef-pubspec-37 DEPENDENCY_MANIFEST_OF SPDXRef-Package-swipe2eat-ui
-
 

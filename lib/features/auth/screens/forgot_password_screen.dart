@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/gradient_button.dart';
-import '../services/cognito_service.dart';
+import '../services/user_auth_service.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   final String initialEmail;
@@ -98,7 +98,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final result = await CognitoService.forgotPassword(
+      final result = await UserAuthService.forgotPassword(
         email: _emailController.text.trim(),
       );
 
@@ -141,7 +141,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final result = await CognitoService.confirmForgotPassword(
+      final result = await UserAuthService.confirmForgotPassword(
         email: _emailController.text.trim(),
         confirmationCode: _codeController.text.trim(),
         newPassword: _newPasswordController.text,
@@ -188,7 +188,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
 
     try {
-      final result = await CognitoService.forgotPassword(
+      final result = await UserAuthService.forgotPassword(
         email: _emailController.text.trim(),
       );
 

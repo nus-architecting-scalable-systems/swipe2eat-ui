@@ -11,8 +11,9 @@ void main() {
   group('FoodDetailScreen widget tests', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({
-        'cognito.userId': 'user-123',
-        'cognito.idToken': 'id-token',
+        'auth.userId': 'user-123',
+        'auth.idToken': 'id-token',
+        'auth.accessToken': 'access-token',
       });
       FavoritesStore.instance.clear();
     });

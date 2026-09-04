@@ -21,57 +21,35 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    test('retries once with refreshed token after 401', () async {
-      final oldToken = _jwtWithExp(
-        DateTime.now().add(const Duration(hours: 1)),
-      );
-      final newToken = _jwtWithExp(
-        DateTime.now().add(const Duration(hours: 2)),
-      );
-      await TokenStorage.saveTokens(
-        idToken: oldToken,
-        accessToken: oldToken,
-        refreshToken: 'refresh-token',
-      );
+    test(
+      'returns 401 when authenticated request cannot be refreshed',
+      () async {
+        final oldToken = _jwtWithExp(
+          DateTime.now().add(const Duration(hours: 1)),
+        );
+        await TokenStorage.saveTokens(idToken: oldToken, accessToken: oldToken);
 
-      var backendCalls = 0;
-      final backendClient = MockClient((request) async {
-        backendCalls++;
-        if (backendCalls == 1) {
+        var backendCalls = 0;
+        final backendClient = MockClient((request) async {
+          backendCalls++;
           expect(request.headers['Authorization'], equals('Bearer $oldToken'));
           return http.Response('unauthorized', 401);
-        }
+        });
 
-        expect(request.headers['Authorization'], equals('Bearer $newToken'));
-        return http.Response('ok', 200);
-      });
+        final authClient = MockClient((_) async {
+          fail('refresh should not be called without a refresh token');
+        });
 
-      var refreshCalls = 0;
-      final cognitoClient = MockClient((_) async {
-        refreshCalls++;
-        return http.Response(
-          jsonEncode({
-            'AuthenticationResult': {
-              'IdToken': newToken,
-              'AccessToken': newToken,
-              'ExpiresIn': 3600,
-              'TokenType': 'Bearer',
-            },
-          }),
-          200,
+        final response = await AuthenticatedHttpClient.get(
+          Uri.parse('https://example.com/protected'),
+          client: backendClient,
+          authClient: authClient,
         );
-      });
 
-      final response = await AuthenticatedHttpClient.get(
-        Uri.parse('https://example.com/protected'),
-        client: backendClient,
-        cognitoClient: cognitoClient,
-      );
-
-      expect(response.statusCode, equals(200));
-      expect(backendCalls, equals(2));
-      expect(refreshCalls, equals(1));
-    });
+        expect(response.statusCode, equals(401));
+        expect(backendCalls, equals(1));
+      },
+    );
 
     test('does not retry unauthenticated requests', () async {
       var backendCalls = 0;

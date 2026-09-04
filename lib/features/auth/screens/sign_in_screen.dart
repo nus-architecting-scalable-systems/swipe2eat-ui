@@ -4,10 +4,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/widgets/gradient_button.dart';
 import 'forgot_password_screen.dart';
-import '../services/cognito_service.dart';
 import '../services/token_storage.dart';
+import '../services/user_auth_service.dart';
 import '../../../core/services/preferences_service.dart';
-import '../../../core/services/user_service.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -18,7 +17,7 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _showPassword = false;
@@ -27,20 +26,17 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  String? _validateEmail(String? value) {
+  String? _validateUsername(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Email is required';
+      return 'Username is required';
     }
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
-    if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email';
+    if (!RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
+      return 'Username can only contain letters and digits';
     }
     return null;
   }
@@ -65,31 +61,43 @@ class _SignInScreenState extends State<SignInScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Call AWS Cognito Sign In API
-      final result = await CognitoService.signIn(
-        email: _emailController.text.trim(),
+      final result = await UserAuthService.signIn(
+        username: _usernameController.text.trim(),
         password: _passwordController.text,
       );
 
       if (mounted) {
         if (result['success'] == true) {
-          final idToken = result['idToken'];
+          final accessToken = result['accessToken'] as String?;
+          final idToken = (result['idToken'] as String?) ?? accessToken;
+          final refreshToken = result['refreshToken'] as String?;
 
-          // Extract userId from JWT token
-          final userId = TokenStorage.extractUserIdFromToken(idToken);
+          if (accessToken == null ||
+              accessToken.isEmpty ||
+              idToken == null ||
+              idToken.isEmpty) {
+            setState(() {
+              _generalError =
+                  'Sign in failed because the server response was incomplete.';
+            });
+            return;
+          }
 
-          // Store tokens
+          final userId =
+              result['userId'] as String? ??
+              TokenStorage.extractUserIdFromToken(accessToken) ??
+              TokenStorage.extractUserIdFromToken(idToken);
+
           await TokenStorage.saveTokens(
             idToken: idToken,
-            accessToken: result['accessToken'],
-            refreshToken: result['refreshToken'],
+            accessToken: accessToken,
+            refreshToken: refreshToken,
             expiresIn: (result['expiresIn'] as num?)?.toInt(),
             userId: userId,
-            email: _emailController.text.trim(),
+            email:
+                (result['username'] as String?) ??
+                _usernameController.text.trim(),
           );
-
-          // Start user bootstrap work right away, but don't block navigation on it.
-          final createUserFuture = UserService.createUserInBackend();
 
           // Check if user has saved preferences on backend
           final hasPreferences = await PreferencesService.hasUserPreferences();
@@ -97,9 +105,6 @@ class _SignInScreenState extends State<SignInScreen> {
           // Navigate based on preferences status
           if (mounted) {
             if (hasPreferences) {
-              // Keep backend bootstrap and preference hydration best-effort.
-              unawaited(createUserFuture);
-
               // Returning user with preferences - go directly to main app
               Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -111,8 +116,6 @@ class _SignInScreenState extends State<SignInScreen> {
               // open immediately with defaults and refresh when sync completes.
               unawaited(PreferencesService.fetchPreferencesFromBackend());
             } else {
-              unawaited(createUserFuture);
-
               // First time user or no preferences - go to onboarding
               Navigator.pushReplacementNamed(context, '/');
             }
@@ -201,12 +204,12 @@ class _SignInScreenState extends State<SignInScreen> {
                   const SizedBox(height: 24),
                 ],
 
-                // Email Field
+                // Username Field
                 TextFormField(
-                  controller: _emailController,
+                  controller: _usernameController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'you@example.com',
+                    labelText: 'Username',
+                    hintText: 'yourusername',
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -233,12 +236,12 @@ class _SignInScreenState extends State<SignInScreen> {
                       borderSide: const BorderSide(color: Colors.red, width: 2),
                     ),
                     prefixIcon: const Icon(
-                      Icons.email_outlined,
+                      Icons.person_outline,
                       color: Color(0xFF6B7280),
                     ),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: _validateEmail,
+                  keyboardType: TextInputType.text,
+                  validator: _validateUsername,
                   enabled: !_isLoading,
                   textInputAction: TextInputAction.next,
                 ),
@@ -336,7 +339,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => ForgotPasswordScreen(
-                              initialEmail: _emailController.text.trim(),
+                              initialEmail: _usernameController.text.trim(),
                             ),
                           ),
                         );

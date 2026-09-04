@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 
 import '../../../core/navigation/app_session.dart';
-import 'cognito_service.dart';
 import 'token_storage.dart';
+import 'user_auth_service.dart';
 
 class AuthSession {
   static const Duration refreshBuffer = Duration(minutes: 5);
@@ -12,7 +12,7 @@ class AuthSession {
 
   static Future<bool> ensureFreshSession({
     bool forceRefresh = false,
-    http.Client? cognitoClient,
+    http.Client? authClient,
     bool redirectOnFailure = true,
   }) async {
     final idToken = await TokenStorage.getIdToken();
@@ -32,7 +32,7 @@ class AuthSession {
     }
 
     return _refresh(
-      cognitoClient: cognitoClient,
+      authClient: authClient,
       redirectOnFailure: redirectOnFailure,
     );
   }
@@ -50,12 +50,21 @@ class AuthSession {
       return false;
     }
 
+    if (!idExpiresAt.isAfter(now) || !accessExpiresAt.isAfter(now)) {
+      return true;
+    }
+
+    final refreshToken = await TokenStorage.getRefreshToken();
+    if (refreshToken == null || refreshToken.trim().isEmpty) {
+      return false;
+    }
+
     return idExpiresAt.isBefore(now.add(refreshBuffer)) ||
         accessExpiresAt.isBefore(now.add(refreshBuffer));
   }
 
   static Future<bool> _refresh({
-    http.Client? cognitoClient,
+    http.Client? authClient,
     required bool redirectOnFailure,
   }) {
     final pending = _pendingRefresh;
@@ -64,7 +73,7 @@ class AuthSession {
     }
 
     final refreshFuture = _performRefresh(
-      cognitoClient: cognitoClient,
+      authClient: authClient,
       redirectOnFailure: redirectOnFailure,
     );
     _pendingRefresh = refreshFuture;
@@ -73,7 +82,7 @@ class AuthSession {
   }
 
   static Future<bool> _performRefresh({
-    http.Client? cognitoClient,
+    http.Client? authClient,
     required bool redirectOnFailure,
   }) async {
     final refreshToken = await TokenStorage.getRefreshToken();
@@ -84,9 +93,9 @@ class AuthSession {
       return false;
     }
 
-    final result = await CognitoService.refreshSession(
+    final result = await UserAuthService.refreshSession(
       refreshToken: refreshToken,
-      client: cognitoClient,
+      client: authClient,
     );
     if (result['success'] == true) {
       final idToken = result['idToken'] as String?;
@@ -110,12 +119,10 @@ class AuthSession {
       return true;
     }
 
-    if (result['errorType']?.toString().contains('NotAuthorizedException') ==
-            true ||
-        result['error']?.toString().contains(
-              'Your sign-in session has expired',
-            ) ==
-            true) {
+    final error = result['error']?.toString().toLowerCase() ?? '';
+    if (error.contains('expired') ||
+        error.contains('unauthorized') ||
+        error.contains('invalid refresh')) {
       if (redirectOnFailure) {
         await _expireSession();
       }

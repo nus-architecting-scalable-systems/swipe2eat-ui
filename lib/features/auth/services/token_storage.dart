@@ -1,22 +1,32 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-/// Service for storing and retrieving AWS Cognito authentication tokens
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Service for storing and retrieving authentication tokens.
 class TokenStorage {
-  static const String _idTokenKey = 'cognito.idToken';
-  static const String _accessTokenKey = 'cognito.accessToken';
-  static const String _refreshTokenKey = 'cognito.refreshToken';
-  static const String _idTokenExpiresAtKey = 'cognito.idTokenExpiresAt';
-  static const String _accessTokenExpiresAtKey = 'cognito.accessTokenExpiresAt';
-  static const String _userIdKey = 'cognito.userId';
-  static const String _emailKey = 'cognito.email';
+  static const String _idTokenKey = 'auth.idToken';
+  static const String _accessTokenKey = 'auth.accessToken';
+  static const String _refreshTokenKey = 'auth.refreshToken';
+  static const String _idTokenExpiresAtKey = 'auth.idTokenExpiresAt';
+  static const String _accessTokenExpiresAtKey = 'auth.accessTokenExpiresAt';
+  static const String _userIdKey = 'auth.userId';
+  static const String _emailKey = 'auth.email';
+  static const Map<String, String> _legacyKeys = {
+    _idTokenKey: 'cognito.idToken',
+    _accessTokenKey: 'cognito.accessToken',
+    _refreshTokenKey: 'cognito.refreshToken',
+    _idTokenExpiresAtKey: 'cognito.idTokenExpiresAt',
+    _accessTokenExpiresAtKey: 'cognito.accessTokenExpiresAt',
+    _userIdKey: 'cognito.userId',
+    _emailKey: 'cognito.email',
+  };
   static const String _userCreatedFlagKey = 'user.backendCreated';
 
   /// Save authentication tokens after successful sign in
   static Future<void> saveTokens({
     required String idToken,
     required String accessToken,
-    required String refreshToken,
+    String? refreshToken,
     int? expiresIn,
     String? userId,
     String? email,
@@ -24,7 +34,11 @@ class TokenStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_idTokenKey, idToken);
     await prefs.setString(_accessTokenKey, accessToken);
-    await prefs.setString(_refreshTokenKey, refreshToken);
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      await prefs.setString(_refreshTokenKey, refreshToken);
+    } else {
+      await prefs.remove(_refreshTokenKey);
+    }
     await _saveTokenExpiries(
       prefs: prefs,
       idToken: idToken,
@@ -66,52 +80,53 @@ class TokenStorage {
   /// Get the ID token (used for API authentication)
   static Future<String?> getIdToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_idTokenKey);
+    return _getString(prefs, _idTokenKey);
   }
 
   /// Get the access token
   static Future<String?> getAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_accessTokenKey);
+    return _getString(prefs, _accessTokenKey);
   }
 
   /// Get the refresh token
   static Future<String?> getRefreshToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_refreshTokenKey);
+    return _getString(prefs, _refreshTokenKey);
   }
 
   static Future<DateTime?> getIdTokenExpiresAt() async {
     final prefs = await SharedPreferences.getInstance();
-    return _parseExpiresAt(prefs.getString(_idTokenExpiresAtKey));
+    return _parseExpiresAt(_getString(prefs, _idTokenExpiresAtKey));
   }
 
   static Future<DateTime?> getAccessTokenExpiresAt() async {
     final prefs = await SharedPreferences.getInstance();
-    return _parseExpiresAt(prefs.getString(_accessTokenExpiresAtKey));
+    return _parseExpiresAt(_getString(prefs, _accessTokenExpiresAtKey));
   }
 
   /// Get the stored user ID
   static Future<String?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userIdKey);
+    return _getString(prefs, _userIdKey);
   }
 
   /// Get the stored email
   static Future<String?> getEmail() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_emailKey);
+    return _getString(prefs, _emailKey);
   }
 
   /// Check if user is logged in (has valid tokens)
   static Future<bool> isLoggedIn() async {
-    final idToken = await getIdToken();
-    if (idToken == null || idToken.isEmpty) {
+    final accessToken = await getAccessToken();
+    if (accessToken == null || accessToken.isEmpty) {
       return false;
     }
 
     final expiresAt =
-        await getIdTokenExpiresAt() ?? extractExpiresAtFromToken(idToken);
+        await getAccessTokenExpiresAt() ??
+        extractExpiresAtFromToken(accessToken);
     if (expiresAt == null) {
       return true;
     }
@@ -122,14 +137,19 @@ class TokenStorage {
   /// Clear all stored tokens (logout)
   static Future<void> clearTokens() async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString(_userIdKey);
-    await prefs.remove(_idTokenKey);
-    await prefs.remove(_accessTokenKey);
-    await prefs.remove(_refreshTokenKey);
-    await prefs.remove(_idTokenExpiresAtKey);
-    await prefs.remove(_accessTokenExpiresAtKey);
-    await prefs.remove(_userIdKey);
-    await prefs.remove(_emailKey);
+    final userId = _getString(prefs, _userIdKey);
+    for (final key in [
+      _idTokenKey,
+      _accessTokenKey,
+      _refreshTokenKey,
+      _idTokenExpiresAtKey,
+      _accessTokenExpiresAtKey,
+      _userIdKey,
+      _emailKey,
+      ..._legacyKeys.values,
+    ]) {
+      await prefs.remove(key);
+    }
 
     if (userId != null) {
       await prefs.remove('$_userCreatedFlagKey.$userId');
@@ -139,9 +159,9 @@ class TokenStorage {
   /// Get authorization header value for API requests
   /// Returns Bearer token or null if not logged in
   static Future<String?> getAuthorizationHeader() async {
-    final idToken = await getIdToken();
-    if (idToken != null && idToken.isNotEmpty) {
-      return 'Bearer $idToken';
+    final accessToken = await getAccessToken();
+    if (accessToken != null && accessToken.isNotEmpty) {
+      return 'Bearer $accessToken';
     }
     return null;
   }
@@ -154,7 +174,7 @@ class TokenStorage {
     return null;
   }
 
-  /// Extract userId (sub claim) from JWT IdToken
+  /// Extract userId (sub claim) from a JWT.
   /// Returns null if token is invalid or userId cannot be extracted
   static String? extractUserIdFromToken(String idToken) {
     try {
@@ -173,7 +193,6 @@ class TokenStorage {
 
       final payloadMap = jsonDecode(decoded) as Map<String, dynamic>;
 
-      // Extract 'sub' claim which is the userId in Cognito
       return payloadMap['sub'] as String?;
     } catch (_) {
       return null;
@@ -236,5 +255,9 @@ class TokenStorage {
       return null;
     }
     return DateTime.tryParse(value);
+  }
+
+  static String? _getString(SharedPreferences prefs, String key) {
+    return prefs.getString(key) ?? prefs.getString(_legacyKeys[key] ?? '');
   }
 }

@@ -9,78 +9,41 @@ import 'authenticated_http_client.dart';
 class UserService {
   static const String _userCreatedFlagKey = 'user.backendCreated';
 
-  /// Creates a user in the backend after successful Cognito signup
-  /// This should be called after the first successful sign-in
+  /// Creates or syncs a user in the backend after authentication.
   ///
-  /// Backend extracts the user ID (sub) from the JWT token and creates
-  /// the user record in the database.
-  ///
-  /// Returns true if the user was created successfully or already exists,
-  /// false if there was an error.
+  /// Backend-owned username/password registration creates the user through
+  /// `POST /user/register`; the old `POST /user/create-user` sync endpoint no
+  /// longer exists. This method now only records that an authenticated user has
+  /// already been provisioned, so legacy callers do not hit a removed endpoint.
   static Future<bool> createUserInBackend() async {
     try {
-      // Check if we've already created this user in the backend
       final userId = await TokenStorage.getUserId();
       if (userId == null) {
         return false;
       }
 
-      // Check local flag to avoid unnecessary API calls
       final prefs = await SharedPreferences.getInstance();
       final userCreatedKey = '$_userCreatedFlagKey.$userId';
       final alreadyCreated = prefs.getBool(userCreatedKey) ?? false;
 
       if (alreadyCreated) {
-        // User already created in backend, skip
         return true;
       }
 
-      // Get both Cognito tokens for backend authentication
       final accessToken = await TokenStorage.getAccessToken();
-      final idToken = await TokenStorage.getIdToken();
-      if (accessToken == null ||
-          accessToken.isEmpty ||
-          idToken == null ||
-          idToken.isEmpty) {
+      if (accessToken == null || accessToken.isEmpty) {
         return false;
       }
 
-      // Build headers with both Authorization (access token) and ID token
-      final headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-        'X-Id-Token': idToken,
-      };
-
-      // Call backend to create user
-      final uri = Uri.parse('${ApiConfig.baseUrl}/user/create-user');
-      final response = await AuthenticatedHttpClient.post(
-        uri,
-        headers: headers,
-        tokenType: AuthTokenType.accessToken,
-      ).timeout(const Duration(seconds: 10));
-
-      // Backend returns 201 CREATED on success
-      if (response.statusCode == 201) {
-        // Mark user as created in local storage
-        await prefs.setBool(userCreatedKey, true);
-        return true;
-      } else if (response.statusCode == 409 || response.statusCode == 200) {
-        // User already exists in backend (409 Conflict) or other success case
-        await prefs.setBool(userCreatedKey, true);
-        return true;
-      } else {
-        // Other error codes indicate failure
-        return false;
-      }
+      await prefs.setBool(userCreatedKey, true);
+      return true;
     } catch (e) {
-      // Network errors or timeouts
       return false;
     }
   }
 
   /// Logs out the currently signed-in user in the backend.
-  /// Uses the Cognito access token so the backend can trigger global sign-out.
+  /// Uses the access token so the backend can invalidate the session.
   ///
   /// Returns true if the backend logout succeeds.
   static Future<bool> logoutCurrentUser({http.Client? client}) async {
@@ -206,11 +169,10 @@ class UserService {
   }
 
   /// Deletes the currently signed-in user from backend.
-  /// Uses the Cognito userId (sub) as path parameter.
+  /// Uses the stored userId as path parameter.
   ///
   /// Returns true if the backend deletion succeeds.
-  /// Treats an already-missing backend user as a successful delete so the
-  /// Cognito deletion step can be safely retried.
+  /// Treats an already-missing backend user as a successful delete.
   static Future<bool> deleteCurrentUserInBackend({http.Client? client}) async {
     http.Client? ownedClient;
 

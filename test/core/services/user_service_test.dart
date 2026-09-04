@@ -7,6 +7,39 @@ import 'package:swipe2eat_ui/core/services/user_service.dart';
 import 'package:swipe2eat_ui/features/auth/services/token_storage.dart';
 
 void main() {
+  group('UserService.createUserInBackend', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    test(
+      'marks authenticated backend-registered user as created locally',
+      () async {
+        await TokenStorage.saveTokens(
+          idToken: 'id-token',
+          accessToken: 'access-token',
+          userId: 'user-123',
+        );
+
+        final created = await UserService.createUserInBackend();
+
+        final prefs = await SharedPreferences.getInstance();
+        expect(created, isTrue);
+        expect(prefs.getBool('user.backendCreated.user-123'), isTrue);
+      },
+    );
+
+    test('returns false when access token is unavailable', () async {
+      await TokenStorage.saveTokens(
+        idToken: 'id-token',
+        accessToken: '',
+        userId: 'user-123',
+      );
+
+      expect(await UserService.createUserInBackend(), isFalse);
+    });
+  });
+
   group('UserService.logoutCurrentUser', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});
@@ -50,49 +83,46 @@ void main() {
       expect(loggedOut, isFalse);
     });
 
-    test(
-      'returns false after backend rejects logout without calling Cognito',
-      () async {
-        await TokenStorage.saveTokens(
-          idToken: 'old-id-token',
-          accessToken: 'expired-access-token',
-          refreshToken: 'refresh-token',
-          userId: 'user-123',
-        );
+    test('returns false after backend rejects logout', () async {
+      await TokenStorage.saveTokens(
+        idToken: 'old-id-token',
+        accessToken: 'expired-access-token',
+        refreshToken: 'refresh-token',
+        userId: 'user-123',
+      );
 
-        var logoutCalls = 0;
-        final logoutClient = MockClient((request) async {
-          logoutCalls++;
-          expect(request.method, equals('POST'));
-          expect(
-            request.url.toString(),
-            equals('${ApiConfig.baseUrl}/user/logout'),
-          );
-
-          expect(
-            request.headers['Authorization'],
-            equals('Bearer expired-access-token'),
-          );
-          return http.Response(
-            '{"message":"Invalid or expired token","error":"Unauthorized"}',
-            401,
-          );
-        });
-
-        final loggedOut = await UserService.logoutCurrentUser(
-          client: logoutClient,
-        );
-
-        expect(loggedOut, isFalse);
-        expect(logoutCalls, equals(1));
-        expect(await TokenStorage.getIdToken(), equals('old-id-token'));
+      var logoutCalls = 0;
+      final logoutClient = MockClient((request) async {
+        logoutCalls++;
+        expect(request.method, equals('POST'));
         expect(
-          await TokenStorage.getAccessToken(),
-          equals('expired-access-token'),
+          request.url.toString(),
+          equals('${ApiConfig.baseUrl}/user/logout'),
         );
-        expect(await TokenStorage.getRefreshToken(), equals('refresh-token'));
-      },
-    );
+
+        expect(
+          request.headers['Authorization'],
+          equals('Bearer expired-access-token'),
+        );
+        return http.Response(
+          '{"message":"Invalid or expired token","error":"Unauthorized"}',
+          401,
+        );
+      });
+
+      final loggedOut = await UserService.logoutCurrentUser(
+        client: logoutClient,
+      );
+
+      expect(loggedOut, isFalse);
+      expect(logoutCalls, equals(1));
+      expect(await TokenStorage.getIdToken(), equals('old-id-token'));
+      expect(
+        await TokenStorage.getAccessToken(),
+        equals('expired-access-token'),
+      );
+      expect(await TokenStorage.getRefreshToken(), equals('refresh-token'));
+    });
   });
 
   group('UserService.deleteCurrentUserInBackend', () {
@@ -100,7 +130,7 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    test('treats 404 as success so Cognito deletion can be retried', () async {
+    test('treats 404 as success during account deletion', () async {
       await TokenStorage.saveTokens(
         idToken: 'id-token',
         accessToken: 'access-token',

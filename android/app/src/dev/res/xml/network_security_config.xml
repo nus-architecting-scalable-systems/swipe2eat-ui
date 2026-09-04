@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain>nus-archss-alb-dev-126330082.ap-southeast-1.elb.amazonaws.com</domain>
+    </domain-config>
+</network-security-config>

@@ -11,7 +11,7 @@ class AuthenticatedHttpClient {
     Map<String, String>? headers,
     AuthTokenType tokenType = AuthTokenType.idToken,
     http.Client? client,
-    http.Client? cognitoClient,
+    http.Client? authClient,
     Duration? timeout,
   }) {
     return _send(
@@ -20,7 +20,7 @@ class AuthenticatedHttpClient {
       headers: headers,
       tokenType: tokenType,
       client: client,
-      cognitoClient: cognitoClient,
+      authClient: authClient,
       timeout: timeout,
     );
   }
@@ -31,7 +31,7 @@ class AuthenticatedHttpClient {
     Object? body,
     AuthTokenType tokenType = AuthTokenType.idToken,
     http.Client? client,
-    http.Client? cognitoClient,
+    http.Client? authClient,
     Duration? timeout,
   }) {
     return _send(
@@ -41,7 +41,7 @@ class AuthenticatedHttpClient {
       body: body,
       tokenType: tokenType,
       client: client,
-      cognitoClient: cognitoClient,
+      authClient: authClient,
       timeout: timeout,
     );
   }
@@ -52,7 +52,7 @@ class AuthenticatedHttpClient {
     Object? body,
     AuthTokenType tokenType = AuthTokenType.idToken,
     http.Client? client,
-    http.Client? cognitoClient,
+    http.Client? authClient,
     Duration? timeout,
   }) {
     return _send(
@@ -62,7 +62,7 @@ class AuthenticatedHttpClient {
       body: body,
       tokenType: tokenType,
       client: client,
-      cognitoClient: cognitoClient,
+      authClient: authClient,
       timeout: timeout,
     );
   }
@@ -72,7 +72,7 @@ class AuthenticatedHttpClient {
     Map<String, String>? headers,
     AuthTokenType tokenType = AuthTokenType.idToken,
     http.Client? client,
-    http.Client? cognitoClient,
+    http.Client? authClient,
     Duration? timeout,
   }) {
     return _send(
@@ -81,7 +81,7 @@ class AuthenticatedHttpClient {
       headers: headers,
       tokenType: tokenType,
       client: client,
-      cognitoClient: cognitoClient,
+      authClient: authClient,
       timeout: timeout,
     );
   }
@@ -93,7 +93,7 @@ class AuthenticatedHttpClient {
     Object? body,
     required AuthTokenType tokenType,
     http.Client? client,
-    http.Client? cognitoClient,
+    http.Client? authClient,
     Duration? timeout,
   }) async {
     String? initialAuthHeader;
@@ -101,7 +101,7 @@ class AuthenticatedHttpClient {
       initialAuthHeader = await _authorizationHeader(tokenType);
       if (initialAuthHeader != null) {
         final fresh = await AuthSession.ensureFreshSession(
-          cognitoClient: cognitoClient,
+          authClient: authClient,
         );
         if (!fresh) {
           return http.Response('Session expired', 401);
@@ -127,7 +127,7 @@ class AuthenticatedHttpClient {
 
     final refreshed = await AuthSession.ensureFreshSession(
       forceRefresh: true,
-      cognitoClient: cognitoClient,
+      authClient: authClient,
     );
     if (!refreshed) {
       return response;

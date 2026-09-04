@@ -9,7 +9,7 @@ void main() {
 
       expect(find.text('Create Account'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Name'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'Username'), findsOneWidget);
       expect(
         find.widgetWithText(DropdownButtonFormField<String>, 'Gender'),
         findsOneWidget,
@@ -30,19 +30,19 @@ void main() {
       expect(find.text('Sign Up'), findsOneWidget);
     });
 
-    testWidgets('email field uses email keyboard type', (
+    testWidgets('username field uses text keyboard type', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(const MaterialApp(home: SignUpScreen()));
 
-      final emailField = tester.widget<TextField>(
+      final usernameField = tester.widget<TextField>(
         find.descendant(
-          of: find.widgetWithText(TextFormField, 'Email'),
+          of: find.widgetWithText(TextFormField, 'Username'),
           matching: find.byType(TextField),
         ),
       );
 
-      expect(emailField.keyboardType, TextInputType.emailAddress);
+      expect(usernameField.keyboardType, TextInputType.text);
     });
 
     testWidgets('password fields are obscured by default', (
@@ -67,7 +67,9 @@ void main() {
       expect(confirmPasswordField.obscureText, true);
     });
 
-    testWidgets('allows entering name and email', (WidgetTester tester) async {
+    testWidgets('allows entering name and username', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const MaterialApp(home: SignUpScreen()));
 
       await tester.enterText(
@@ -75,12 +77,12 @@ void main() {
         'Jane Doe',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Email'),
-        'jane@example.com',
+        find.widgetWithText(TextFormField, 'Username'),
+        'jane123',
       );
 
       expect(find.text('Jane Doe'), findsOneWidget);
-      expect(find.text('jane@example.com'), findsOneWidget);
+      expect(find.text('jane123'), findsOneWidget);
     });
 
     testWidgets(
@@ -93,8 +95,8 @@ void main() {
           'Jane Doe',
         );
         await tester.enterText(
-          find.widgetWithText(TextFormField, 'Email'),
-          'jane@example.com',
+          find.widgetWithText(TextFormField, 'Username'),
+          'jane123',
         );
         await tester.tap(find.byType(DropdownButtonFormField<String>).last);
         await tester.pumpAndSettle();

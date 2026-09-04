@@ -30,15 +30,14 @@ A Flutter app for discovering, swiping, saving, and revisiting food recommendati
 
 ### Authentication
 
-- AWS Cognito sign-up, confirmation, sign-in, forgot-password, token refresh, and delete-user flows.
-- ID token authentication for backend APIs.
-- Access token use where Cognito requires it.
+- Backend REST registration, sign-in, logout, profile, and account deletion flows through the user service.
+- Bearer-token authentication for backend APIs.
 - SharedPreferences-backed local session storage.
-- Automatic session refresh through `AuthenticatedHttpClient`.
+- Expired-session handling through `AuthenticatedHttpClient`.
 
 ### Backend And Local State
 
-- Food discovery fetches personalized results by Cognito user id first, then falls back to preference filters.
+- Food discovery fetches personalized results by stored user id first, then falls back to preference filters.
 - Preferences sync to the backend and are also saved locally.
 - Swipe preferences are queued through the backend swipe endpoint.
 - Favorites are synced from the backend and cached in `FavoritesStore`.
@@ -86,6 +85,15 @@ config/env/dev.json
 config/env/staging.json
 config/env/prod.json
 ```
+
+The checked-in development environment uses:
+
+```text
+http://nus-archss-alb-dev-126330082.ap-southeast-1.elb.amazonaws.com
+```
+
+Plain `flutter run` also defaults to this development backend. Staging and
+production builds should continue to pass their environment file explicitly.
 
 Example run using an environment file:
 
@@ -165,29 +173,26 @@ The app uses authenticated backend calls through `AuthenticatedHttpClient` where
 
 ### Authentication
 
-AWS Cognito endpoint:
+Implemented user-service auth endpoints:
 
 ```text
-https://cognito-idp.ap-southeast-1.amazonaws.com/
+POST /user/register
+POST /user/login
+POST /user/logout
+GET /user/{userId}
+PUT /user/me
+DELETE /user/{userId}
 ```
 
-Implemented Cognito operations:
-
-- `SignUp`
-- `ConfirmSignUp`
-- `ResendConfirmationCode`
-- `ForgotPassword`
-- `ConfirmForgotPassword`
-- `InitiateAuth` for sign-in
-- `InitiateAuth` for refresh-token auth
-- `DeleteUser`
+Successful sign-in responses must include an access token and user id. The
+current user service does not expose token-refresh or password-reset endpoints.
 
 ### Food Discovery
 
 Primary personalized request:
 
 ```text
-GET /food/?userId={cognitoUserId}
+GET /food/?userId={userId}
 ```
 
 Fallback request when personalized results are empty:
@@ -201,7 +206,7 @@ The parser accepts list responses directly, or wrapped in `data` or `foods`.
 ### Favorites
 
 ```text
-GET /preference/food/users/{cognitoUserId}
+GET /preference/food/users/{userId}
 ```
 
 Favorites can be returned as food objects directly or nested under a `food` key. The favorites parser preserves `address` when the backend provides it.
@@ -217,10 +222,10 @@ This records like/dislike actions for the authenticated user.
 ### User Preferences
 
 ```text
-GET /preference/users/{cognitoUserId}
-PUT /preference/users/{cognitoUserId}
+GET /preference/users/{userId}
+PUT /preference/users/{userId}
 GET /preference/dietary/options
-GET /preference/dietary/users/{cognitoUserId}
+GET /preference/dietary/users/{userId}
 ```
 
 Preferences are saved locally as a fallback when sync fails.
@@ -228,11 +233,10 @@ Preferences are saved locally as a fallback when sync fails.
 ### Profile And User
 
 ```text
-GET /user/{cognitoUserId}
-GET /user/me
+GET /user/{userId}
 PUT /user/me
-POST /user/create-user
 POST /user/logout
+DELETE /user/{userId}
 ```
 
 ## Food Location Flow
@@ -336,7 +340,7 @@ flutter doctor --android-licenses
 ### Backend Or Login Issues
 
 - Confirm `API_BASE_URL` points to the intended backend.
-- Confirm Cognito sign-in succeeds before testing authenticated screens.
+- Confirm `/user/login` succeeds before testing authenticated screens.
 - Clear simulator app data when testing a fresh auth state.
 - Re-run with the expected environment file:
 
