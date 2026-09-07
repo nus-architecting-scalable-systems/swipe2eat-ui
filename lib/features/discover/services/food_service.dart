@@ -102,7 +102,7 @@ class FoodService {
     required Map<String, String> headers,
   }) async {
     final uri = Uri.parse(
-      '${ApiConfig.baseUrl}/food/',
+      ApiConfig.foodBaseUrl,
     ).replace(query: _buildQueryString(queryParameters));
 
     final tokenType = headers.containsKey('Authorization')
