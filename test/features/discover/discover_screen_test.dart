@@ -152,7 +152,7 @@ void main() {
         await saveSession();
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/food/?userId=user-123',
+          url: '${ApiConfig.foodBaseUrl}?userId=user-123',
           response: StubHttpResponse.json([
             foodJson(
               id: '11111111-1111-4111-8111-111111111111',
@@ -188,7 +188,7 @@ void main() {
         matcher: (request) =>
             request.method == 'GET' &&
             request.uri.toString() ==
-                '${ApiConfig.baseUrl}/food/?userId=user-123',
+                '${ApiConfig.foodBaseUrl}?userId=user-123',
         handler: (_) {
           calls++;
           if (calls == 1) {
@@ -223,7 +223,7 @@ void main() {
       httpOverrides.addHandler(
         matcher: (request) =>
             request.method == 'GET' &&
-            request.uri.path.endsWith('/food/') &&
+            request.uri.path.endsWith('/food') &&
             request.uri.queryParameters['budget'] == 'medium' &&
             _listEquals(request.uri.queryParametersAll['cuisines'], const [
               'Thai',
@@ -262,7 +262,7 @@ void main() {
           matcher: (request) =>
               request.method == 'GET' &&
               request.uri.toString() ==
-                  '${ApiConfig.baseUrl}/food/?userId=user-123',
+                  '${ApiConfig.foodBaseUrl}?userId=user-123',
           handler: (_) {
             calls++;
             if (calls == 1) {
@@ -317,7 +317,7 @@ void main() {
         await saveSession();
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/food/?userId=user-123',
+          url: '${ApiConfig.foodBaseUrl}?userId=user-123',
           response: StubHttpResponse.json([
             foodJson(
               id: '55555555-5555-4555-8555-555555555555',
@@ -352,7 +352,7 @@ void main() {
       await saveSession();
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.baseUrl}/food/?userId=user-123',
+        url: '${ApiConfig.foodBaseUrl}?userId=user-123',
         response: StubHttpResponse.json([
           foodJson(
             id: '66666666-6666-4666-8666-666666666666',
@@ -390,7 +390,7 @@ void main() {
           matcher: (request) =>
               request.method == 'GET' &&
               request.uri.toString() ==
-                  '${ApiConfig.baseUrl}/food/?userId=user-123',
+                  '${ApiConfig.foodBaseUrl}?userId=user-123',
           handler: (_) => StubHttpResponse.json([
             foodJson(
               id: '77777777-7777-4777-8777-777777777777',
@@ -466,7 +466,7 @@ void main() {
           matcher: (request) =>
               request.method == 'GET' &&
               request.uri.toString() ==
-                  '${ApiConfig.baseUrl}/food/?userId=user-123',
+                  '${ApiConfig.foodBaseUrl}?userId=user-123',
           handler: (_) => StubHttpResponse.json([
             foodJson(
               id: '88888888-8888-4888-8888-888888888888',

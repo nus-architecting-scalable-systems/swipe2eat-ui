@@ -6,16 +6,29 @@ void main() {
     test('uses the default base URL in tests', () {
       expect(
         ApiConfig.baseUrl,
-        'http://nus-archss-alb-dev-126330082.ap-southeast-1.elb.amazonaws.com',
+        'https://dev.keiyam.me',
       );
     });
 
     test('builds derived service URLs from the base URL', () {
-      expect(ApiConfig.userBaseUrl, '${ApiConfig.baseUrl}/user');
-      expect(ApiConfig.preferenceBaseUrl, '${ApiConfig.baseUrl}/preference');
+      expect(
+        ApiConfig.userBaseUrl,
+        '${ApiConfig.baseUrl}/api/v1/user',
+      );
+
+      expect(
+        ApiConfig.preferenceBaseUrl,
+        '${ApiConfig.baseUrl}/api/v1/preference',
+      );
+
       expect(
         ApiConfig.dietaryOptionsUrl,
-        '${ApiConfig.baseUrl}/preference/dietary/options',
+        '${ApiConfig.baseUrl}/api/v1/preference/dietary/options',
+      );
+
+      expect(
+        ApiConfig.foodBaseUrl,
+        '${ApiConfig.baseUrl}/api/v1/food',
       );
     });
   });

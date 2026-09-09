@@ -32,7 +32,7 @@ void main() {
 
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.baseUrl}/food/?userId=user-123',
+        url: '${ApiConfig.foodBaseUrl}?userId=user-123',
         response: StubHttpResponse.json([
           {
             'id': '11111111-1111-4111-8111-111111111111',
@@ -74,13 +74,13 @@ void main() {
 
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/food/?userId=user-123',
+          url: '${ApiConfig.foodBaseUrl}?userId=user-123',
           response: StubHttpResponse.json(const <Object>[]),
         );
         httpOverrides.addResponse(
           method: 'GET',
           url:
-              '${ApiConfig.baseUrl}/food/?budget=medium&cuisines=Thai&cuisines=Japanese&spiceLevel=3',
+              '${ApiConfig.foodBaseUrl}?budget=medium&cuisines=Thai&cuisines=Japanese&spiceLevel=3',
           response: StubHttpResponse.json({
             'foods': [
               {
@@ -119,9 +119,9 @@ void main() {
         const validIdB = '44444444-4444-4444-8444-444444444444';
         const validIdC = '55555555-5555-4555-8555-555555555555';
         final urls = <String>[
-          '${ApiConfig.baseUrl}/food/?budget=low&spiceLevel=1',
-          '${ApiConfig.baseUrl}/food/?budget=medium&spiceLevel=2',
-          '${ApiConfig.baseUrl}/food/?budget=high&spiceLevel=3',
+          '${ApiConfig.foodBaseUrl}?budget=low&spiceLevel=1',
+          '${ApiConfig.foodBaseUrl}?budget=medium&spiceLevel=2',
+          '${ApiConfig.foodBaseUrl}?budget=high&spiceLevel=3',
         ];
         final payloads = <Object>[
           [
@@ -188,7 +188,7 @@ void main() {
 
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/food/?budget=medium&spiceLevel=2',
+          url: '${ApiConfig.foodBaseUrl}?budget=medium&spiceLevel=2',
           response: StubHttpResponse.json([
             {'id': 'not-a-uuid', 'name': 'Ignore me'},
             {'name': 'Missing ID'},
@@ -221,7 +221,7 @@ void main() {
     test('throws when the backend response is not successful', () async {
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.baseUrl}/food/?budget=low&spiceLevel=1',
+        url: '${ApiConfig.foodBaseUrl}?budget=low&spiceLevel=1',
         response: const StubHttpResponse(statusCode: 503, body: 'unavailable'),
       );
 
