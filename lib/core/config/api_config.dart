@@ -20,15 +20,12 @@ class ApiConfig {
 
   static const String apiV1 = '$baseUrl/api/v1';
 
-  static String get userBaseUrl =>
-      isLocal ? _defaultLocalUser : '$apiV1/user';
+  static String get userBaseUrl => isLocal ? _defaultLocalUser : '$apiV1/user';
 
   static String get preferenceBaseUrl =>
       isLocal ? _defaultLocalPreference : '$apiV1/preference';
 
-  static String get foodBaseUrl =>
-      isLocal ? _defaultLocalFood : '$apiV1/food';
+  static String get foodBaseUrl => isLocal ? _defaultLocalFood : '$apiV1/food';
 
-  static String get dietaryOptionsUrl =>
-      '$preferenceBaseUrl/dietary/options';
+  static String get dietaryOptionsUrl => '$preferenceBaseUrl/dietary/options';
 }
