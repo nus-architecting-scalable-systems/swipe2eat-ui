@@ -70,6 +70,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Future<void> _initLoad() async {
     await _loadBootstrapState();
+    if (!mounted) return;
     await _fetchFoods();
   }
 
@@ -130,6 +131,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Future<void> _fetchFoods() async {
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _error = null;
@@ -142,6 +144,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         dietType: _selectedDietType,
         allergens: _selectedAllergens,
       );
+      if (!mounted) return;
       setState(() {
         _items
           ..clear()
@@ -151,6 +154,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         _loading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _loading = false;
