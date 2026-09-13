@@ -72,7 +72,7 @@ void main() {
       httpOverrides.addHandler(
         matcher: (request) =>
             request.method == 'GET' &&
-            request.uri.toString() == '${ApiConfig.baseUrl}/user/user-123',
+            request.uri.toString() == '${ApiConfig.userBaseUrl}/user-123',
         handler: (_) {
           final current =
               responses[index < responses.length
@@ -182,7 +182,7 @@ void main() {
       ]);
       httpOverrides.addResponse(
         method: 'PUT',
-        url: '${ApiConfig.baseUrl}/user/me',
+        url: '${ApiConfig.userBaseUrl}/me',
         response: const StubHttpResponse(statusCode: 200, body: '{}'),
       );
 
@@ -201,7 +201,7 @@ void main() {
       expect(find.text('male'), findsOneWidget);
       expect(find.text('1990-01-02'), findsOneWidget);
 
-      final request = requestFor('PUT', '${ApiConfig.baseUrl}/user/me');
+      final request = requestFor('PUT', '${ApiConfig.userBaseUrl}/me');
       expect(request, isNotNull);
       expect(
         jsonDecode(request!.body),
@@ -218,7 +218,7 @@ void main() {
       ]);
       httpOverrides.addResponse(
         method: 'PUT',
-        url: '${ApiConfig.baseUrl}/user/me',
+        url: '${ApiConfig.userBaseUrl}/me',
         response: const StubHttpResponse(statusCode: 500, body: '{}'),
       );
 
@@ -254,7 +254,7 @@ void main() {
         );
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/preference/users/user-123',
+          url: '${ApiConfig.preferenceBaseUrl}/users/user-123',
           response: StubHttpResponse.json({
             'cuisines': ['Chinese', 'Thai'],
             'budget': 'high',
@@ -367,7 +367,7 @@ void main() {
       );
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.baseUrl}/preference/users/user-123',
+        url: '${ApiConfig.preferenceBaseUrl}/users/user-123',
         response: StubHttpResponse.json({
           'cuisines': ['Japanese', 'Thai'],
           'budget': 'low',
@@ -440,7 +440,7 @@ void main() {
       );
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.baseUrl}/preference/users/user-123',
+        url: '${ApiConfig.preferenceBaseUrl}/users/user-123',
         response: StubHttpResponse.json({
           'cuisines': ['Thai'],
           'budget': 'high',
@@ -520,7 +520,7 @@ void main() {
       ]);
       httpOverrides.addResponse(
         method: 'DELETE',
-        url: '${ApiConfig.baseUrl}/user/user-123',
+        url: '${ApiConfig.userBaseUrl}/user-123',
         response: const StubHttpResponse(statusCode: 500, body: '{}'),
       );
 
@@ -550,7 +550,7 @@ void main() {
       ]);
       httpOverrides.addResponse(
         method: 'DELETE',
-        url: '${ApiConfig.baseUrl}/user/user-123',
+        url: '${ApiConfig.userBaseUrl}/user-123',
         response: const StubHttpResponse(statusCode: 204, body: '{}'),
       );
       await pumpProfile(tester);

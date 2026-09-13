@@ -411,7 +411,7 @@ void main() {
         await saveSession();
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/preference/users/user-123',
+          url: '${ApiConfig.preferenceBaseUrl}/users/user-123',
           response: StubHttpResponse.json({
             'cuisines': ['Thai', 'Japanese'],
             'budget': 'medium',
@@ -442,7 +442,7 @@ void main() {
         await saveSession(userId: 'single');
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/preference/users/single',
+          url: '${ApiConfig.preferenceBaseUrl}/users/single',
           response: StubHttpResponse.json({
             'cuisines': 'Korean',
             'budget': 'high',
@@ -463,7 +463,7 @@ void main() {
         await saveSession(userId: 'bad-status');
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/preference/users/bad-status',
+          url: '${ApiConfig.preferenceBaseUrl}/users/bad-status',
           response: const StubHttpResponse(statusCode: 500, body: '{}'),
         );
         expect(await PreferencesService.fetchPreferencesFromBackend(), isNull);
@@ -495,7 +495,7 @@ void main() {
           httpOverrides.clear();
           httpOverrides.addResponse(
             method: 'POST',
-            url: '${ApiConfig.baseUrl}/preference/food/swipe',
+            url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
             response: StubHttpResponse(statusCode: statusCode, body: '{}'),
           );
 
@@ -519,7 +519,7 @@ void main() {
         await saveSession();
         httpOverrides.addResponse(
           method: 'POST',
-          url: '${ApiConfig.baseUrl}/preference/food/swipe',
+          url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
           response: const StubHttpResponse(statusCode: 500, body: '{}'),
         );
 
@@ -552,7 +552,7 @@ void main() {
         matcher: (request) =>
             request.method == 'POST' &&
             request.uri.toString() ==
-                '${ApiConfig.baseUrl}/preference/food/swipe',
+                '${ApiConfig.preferenceBaseUrl}/food/swipe',
         handler: (request) async {
           callCount++;
           order.add(jsonDecode(request.body)['foodId'] as String);

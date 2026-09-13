@@ -286,7 +286,7 @@ void main() {
         );
         httpOverrides.addResponse(
           method: 'POST',
-          url: '${ApiConfig.baseUrl}/preference/food/swipe',
+          url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
           response: const StubHttpResponse(statusCode: 204, body: '{}'),
         );
 
@@ -329,7 +329,7 @@ void main() {
         );
         httpOverrides.addResponse(
           method: 'POST',
-          url: '${ApiConfig.baseUrl}/preference/food/swipe',
+          url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
           response: const StubHttpResponse(statusCode: 500, body: '{}'),
         );
 
@@ -364,7 +364,7 @@ void main() {
       );
       httpOverrides.addResponse(
         method: 'POST',
-        url: '${ApiConfig.baseUrl}/preference/food/swipe',
+        url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
         response: const StubHttpResponse(statusCode: 204, body: '{}'),
       );
 

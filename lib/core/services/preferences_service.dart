@@ -314,7 +314,7 @@ class PreferencesService {
         return null;
       }
 
-      final uri = Uri.parse('${ApiConfig.baseUrl}/preference/users/$userId');
+      final uri = Uri.parse('${ApiConfig.preferenceBaseUrl}/users/$userId');
       final res = await AuthenticatedHttpClient.get(
         uri,
         headers: await _buildAuthHeaders(),
@@ -374,7 +374,7 @@ class PreferencesService {
       return false;
     }
 
-    final uri = Uri.parse('${ApiConfig.baseUrl}/preference/food/swipe');
+    final uri = Uri.parse('${ApiConfig.preferenceBaseUrl}/food/swipe');
     final headers = await _buildAuthHeaders();
     final payload = jsonEncode({
       'userId': userId,
