@@ -57,7 +57,7 @@ void main() {
         expect(request.method, equals('POST'));
         expect(
           request.url.toString(),
-          equals('${ApiConfig.baseUrl}/user/logout'),
+          equals('${ApiConfig.userBaseUrl}/logout'),
         );
         expect(request.headers['Authorization'], equals('Bearer access-token'));
         expect(request.headers['Content-Type'], equals('application/json'));
@@ -97,7 +97,7 @@ void main() {
         expect(request.method, equals('POST'));
         expect(
           request.url.toString(),
-          equals('${ApiConfig.baseUrl}/user/logout'),
+          equals('${ApiConfig.userBaseUrl}/logout'),
         );
 
         expect(
@@ -142,7 +142,7 @@ void main() {
         expect(request.method, equals('DELETE'));
         expect(
           request.url.toString(),
-          equals('${ApiConfig.baseUrl}/user/user-123'),
+          equals('${ApiConfig.userBaseUrl}/user-123'),
         );
         expect(request.headers['Authorization'], equals('Bearer access-token'));
         expect(request.headers['X-Id-Token'], equals('id-token'));

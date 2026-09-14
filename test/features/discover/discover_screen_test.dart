@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -146,6 +147,33 @@ void main() {
       HttpOverrides.global = null;
     });
 
+    for (final statusCode in [200, 500]) {
+      testWidgets('ignores a late $statusCode food response after disposal', (
+        tester,
+      ) async {
+        await saveSession();
+        final response = Completer<StubHttpResponse>();
+        var requested = false;
+        httpOverrides.addHandler(
+          matcher: (request) =>
+              request.uri.toString() ==
+              '${ApiConfig.foodBaseUrl}?userId=user-123',
+          handler: (_) {
+            requested = true;
+            return response.future;
+          },
+        );
+
+        await pumpDiscover(tester);
+        expect(requested, isTrue);
+        await tester.pumpWidget(const SizedBox.shrink());
+        response.complete(StubHttpResponse(statusCode: statusCode, body: '[]'));
+        await settleUi(tester);
+
+        expect(tester.takeException(), isNull);
+      });
+    }
+
     testWidgets(
       'loads bootstrap state, renders the card, and opens food details',
       (tester) async {
@@ -286,7 +314,7 @@ void main() {
         );
         httpOverrides.addResponse(
           method: 'POST',
-          url: '${ApiConfig.baseUrl}/preference/food/swipe',
+          url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
           response: const StubHttpResponse(statusCode: 204, body: '{}'),
         );
 
@@ -329,7 +357,7 @@ void main() {
         );
         httpOverrides.addResponse(
           method: 'POST',
-          url: '${ApiConfig.baseUrl}/preference/food/swipe',
+          url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
           response: const StubHttpResponse(statusCode: 500, body: '{}'),
         );
 
@@ -364,7 +392,7 @@ void main() {
       );
       httpOverrides.addResponse(
         method: 'POST',
-        url: '${ApiConfig.baseUrl}/preference/food/swipe',
+        url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
         response: const StubHttpResponse(statusCode: 204, body: '{}'),
       );
 

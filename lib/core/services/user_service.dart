@@ -76,7 +76,7 @@ class UserService {
         'Authorization': 'Bearer $accessToken',
       };
 
-      final uri = Uri.parse('${ApiConfig.baseUrl}/user/logout');
+      final uri = Uri.parse('${ApiConfig.userBaseUrl}/logout');
       return await effectiveClient
           .post(uri, headers: headers)
           .timeout(const Duration(seconds: 10));
@@ -102,7 +102,7 @@ class UserService {
         'X-Id-Token': idToken,
       };
 
-      final uri = Uri.parse('${ApiConfig.baseUrl}/user/$userId');
+      final uri = Uri.parse('${ApiConfig.userBaseUrl}/$userId');
       final response = await AuthenticatedHttpClient.get(
         uri,
         headers: headers,
@@ -144,7 +144,7 @@ class UserService {
         'dateOfBirth': dateOfBirth?.toIso8601String().split('T').first,
       });
 
-      final uri = Uri.parse('${ApiConfig.baseUrl}/user/me');
+      final uri = Uri.parse('${ApiConfig.userBaseUrl}/me');
       final response = await AuthenticatedHttpClient.put(
         uri,
         headers: headers,
@@ -198,7 +198,7 @@ class UserService {
         'X-Id-Token': idToken,
       };
 
-      final uri = Uri.parse('${ApiConfig.baseUrl}/user/$userId');
+      final uri = Uri.parse('${ApiConfig.userBaseUrl}/$userId');
       final response = await AuthenticatedHttpClient.delete(
         uri,
         headers: headers,

@@ -89,14 +89,14 @@ void main() {
       );
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.baseUrl}/preference/food/users/user-123',
+        url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
         response: StubHttpResponse.json({
           'foods': [favoriteFood()],
         }),
       );
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.baseUrl}/user/user-123',
+        url: '${ApiConfig.userBaseUrl}/user-123',
         response: StubHttpResponse.json({
           'gender': 'female',
           'dateOfBirth': '1995-04-12',
