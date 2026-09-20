@@ -89,7 +89,7 @@ void main() {
       );
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+        url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
         response: StubHttpResponse.json({
           'foods': [favoriteFood()],
         }),

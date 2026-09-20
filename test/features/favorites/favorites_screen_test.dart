@@ -95,7 +95,7 @@ void main() {
       await saveSession();
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+        url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
         response: StubHttpResponse.json(
           const <Object>[],
           delay: const Duration(milliseconds: 200),
@@ -137,7 +137,7 @@ void main() {
         matcher: (request) =>
             request.method == 'GET' &&
             request.uri.toString() ==
-                '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+                '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
         handler: (_) {
           calls++;
           if (calls == 1) {
@@ -181,7 +181,7 @@ void main() {
         await saveSession();
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
           response: StubHttpResponse.json({
             'data': [
               {
@@ -215,7 +215,7 @@ void main() {
       await saveSession();
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+        url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
         response: StubHttpResponse.json(const <Object>[]),
       );
 
@@ -234,7 +234,7 @@ void main() {
       await saveSession();
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+        url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
         response: StubHttpResponse.json([
           foodJson(
             id: '33333333-3333-4333-8333-333333333333',
@@ -289,7 +289,7 @@ void main() {
       await saveSession();
       httpOverrides.addResponse(
         method: 'GET',
-        url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+        url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
         response: StubHttpResponse.json({
           'foods': [
             foodJson(
@@ -319,7 +319,7 @@ void main() {
         const address = '1 NUS Drive, Singapore';
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
           response: StubHttpResponse.json({
             'foods': [
               foodJson(
@@ -352,7 +352,7 @@ void main() {
         await saveSession();
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
           response: StubHttpResponse.json(const <Object>[]),
         );
 
@@ -390,7 +390,7 @@ void main() {
         stubImageTraffic();
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.preferenceBaseUrl}/food/users/user-123',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
           response: StubHttpResponse.json(const <Object>[]),
         );
         await pumpFavorites(tester);

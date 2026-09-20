@@ -50,7 +50,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         throw Exception('Missing user id');
       }
       final uri = Uri.parse(
-        '${ApiConfig.preferenceBaseUrl}/food/users/$userId',
+        '${ApiConfig.preferenceBaseUrl}/foods/users/$userId',
       );
       final res = await AuthenticatedHttpClient.get(
         uri,

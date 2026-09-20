@@ -374,7 +374,7 @@ class PreferencesService {
       return false;
     }
 
-    final uri = Uri.parse('${ApiConfig.preferenceBaseUrl}/food/swipe');
+    final uri = Uri.parse('${ApiConfig.preferenceBaseUrl}/foods/swipe');
     final headers = await _buildAuthHeaders();
     final payload = jsonEncode({
       'userId': userId,
