@@ -495,7 +495,7 @@ void main() {
           httpOverrides.clear();
           httpOverrides.addResponse(
             method: 'POST',
-            url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
+            url: '${ApiConfig.preferenceBaseUrl}/foods/swipe',
             response: StubHttpResponse(statusCode: statusCode, body: '{}'),
           );
 
@@ -519,7 +519,7 @@ void main() {
         await saveSession();
         httpOverrides.addResponse(
           method: 'POST',
-          url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/swipe',
           response: const StubHttpResponse(statusCode: 500, body: '{}'),
         );
 
@@ -552,7 +552,7 @@ void main() {
         matcher: (request) =>
             request.method == 'POST' &&
             request.uri.toString() ==
-                '${ApiConfig.preferenceBaseUrl}/food/swipe',
+                '${ApiConfig.preferenceBaseUrl}/foods/swipe',
         handler: (request) async {
           callCount++;
           order.add(jsonDecode(request.body)['foodId'] as String);

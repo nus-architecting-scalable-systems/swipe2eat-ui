@@ -106,6 +106,18 @@ Android builds also define product flavors in `android/app/build.gradle.kts`:
 flutter run --flavor dev --dart-define-from-file=config/env/dev.json
 ```
 
+### AWS load-balancer connectivity check
+
+This live integration test verifies that the UI's configured AWS development
+load balancer serves the dietary-options endpoint and returns the expected
+payload. It makes a real network request; run it explicitly when checking the
+development environment:
+
+```bash
+flutter test integration_test/aws_load_balancer_connectivity_test.dart \
+  --dart-define-from-file=config/env/dev.json
+```
+
 ## Running The App
 
 List devices:

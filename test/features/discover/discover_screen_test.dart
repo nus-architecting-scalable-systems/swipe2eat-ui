@@ -251,7 +251,7 @@ void main() {
       httpOverrides.addHandler(
         matcher: (request) =>
             request.method == 'GET' &&
-            request.uri.path.endsWith('/food') &&
+            request.uri.path.endsWith('/foods') &&
             request.uri.queryParameters['budget'] == 'medium' &&
             _listEquals(request.uri.queryParametersAll['cuisines'], const [
               'Thai',
@@ -314,7 +314,7 @@ void main() {
         );
         httpOverrides.addResponse(
           method: 'POST',
-          url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/swipe',
           response: const StubHttpResponse(statusCode: 204, body: '{}'),
         );
 
@@ -357,7 +357,7 @@ void main() {
         );
         httpOverrides.addResponse(
           method: 'POST',
-          url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/swipe',
           response: const StubHttpResponse(statusCode: 500, body: '{}'),
         );
 
@@ -392,7 +392,7 @@ void main() {
       );
       httpOverrides.addResponse(
         method: 'POST',
-        url: '${ApiConfig.preferenceBaseUrl}/food/swipe',
+        url: '${ApiConfig.preferenceBaseUrl}/foods/swipe',
         response: const StubHttpResponse(statusCode: 204, body: '{}'),
       );
 
