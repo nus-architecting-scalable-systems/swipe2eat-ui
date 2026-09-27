@@ -15,7 +15,7 @@ void main() {
 
     expect(uri.scheme, 'http');
     expect(uri.host, expectedHost);
-    expect(uri.path, '/preference/api/v1/dietary/options');
+    expect(uri.path, '/api/v1/preference/dietary/options');
 
     final response = await http.get(uri).timeout(const Duration(seconds: 15));
 
