@@ -251,7 +251,7 @@ void main() {
       httpOverrides.addHandler(
         matcher: (request) =>
             request.method == 'GET' &&
-            request.uri.path.endsWith('/foods') &&
+            request.uri.path.endsWith('/food') &&
             request.uri.queryParameters['budget'] == 'medium' &&
             _listEquals(request.uri.queryParametersAll['cuisines'], const [
               'Thai',
