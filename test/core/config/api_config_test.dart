@@ -4,10 +4,7 @@ import 'package:swipe2eat_ui/core/config/api_config.dart';
 void main() {
   group('ApiConfig', () {
     test('uses the default base URL in tests', () {
-      expect(
-        ApiConfig.baseUrl,
-        'https://dev.keiyam.me',
-      );
+      expect(ApiConfig.baseUrl, 'https://dev.keiyam.me');
     });
 
     test('routes local requests to the separate service ports', () {
