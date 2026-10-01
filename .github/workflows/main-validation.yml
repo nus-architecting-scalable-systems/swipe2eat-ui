@@ -323,7 +323,9 @@ jobs:
         shell: bash
       - run: flutter build windows --release --dart-define-from-file="$RUNNER_TEMP/dart-defines.json"
         shell: bash
-      - uses: actions/upload-artifact@v6
+      - name: Upload Windows artifact (non-blocking)
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
         with:
           name: windows-release
           path: build/windows/x64/runner/Release
