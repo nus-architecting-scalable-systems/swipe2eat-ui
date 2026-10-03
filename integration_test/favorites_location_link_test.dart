@@ -60,7 +60,7 @@ void main() {
         const address = '1 NUS Drive, Singapore';
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/preference/food/users/user-123',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
           response: StubHttpResponse.json({
             'foods': [
               {
@@ -108,7 +108,7 @@ void main() {
         const restaurant = 'Dunman Food Centre';
         httpOverrides.addResponse(
           method: 'GET',
-          url: '${ApiConfig.baseUrl}/preference/food/users/user-123',
+          url: '${ApiConfig.preferenceBaseUrl}/foods/users/user-123',
           response: StubHttpResponse.json({
             'foods': [
               {
