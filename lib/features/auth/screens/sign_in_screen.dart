@@ -3,7 +3,6 @@ import 'dart:async';
 // Sign In Screen
 import 'package:flutter/material.dart';
 import '../../../core/widgets/gradient_button.dart';
-import 'forgot_password_screen.dart';
 import '../services/token_storage.dart';
 import '../services/user_auth_service.dart';
 import '../../../core/services/preferences_service.dart';
@@ -334,16 +333,22 @@ class _SignInScreenState extends State<SignInScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ForgotPasswordScreen(
-                              initialEmail: _usernameController.text.trim(),
-                            ),
+                      onTap: () => showDialog<void>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: const Text('Forgot your password?'),
+                          content: const Text(
+                            "Password reset isn't available in this version of SwipeToEat. "
+                            'Please contact the SwipeToEat team for help.',
                           ),
-                        );
-                      },
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(dialogContext),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      ),
                       child: const Text(
                         'Forgot Password?',
                         style: TextStyle(
