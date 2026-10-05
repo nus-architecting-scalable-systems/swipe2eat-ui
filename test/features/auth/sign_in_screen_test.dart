@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:swipe2eat_ui/features/auth/screens/forgot_password_screen.dart';
 import 'package:swipe2eat_ui/features/auth/screens/sign_in_screen.dart';
 
 void main() {
@@ -88,7 +87,7 @@ void main() {
       expect(find.byType(SizedBox), findsWidgets);
     });
 
-    testWidgets('forgot password link opens forgot password screen', (
+    testWidgets('forgot password link shows reset unavailable dialog', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(const MaterialApp(home: SignInScreen()));
@@ -96,7 +95,21 @@ void main() {
       await tester.tap(find.text('Forgot Password?'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(ForgotPasswordScreen), findsOneWidget);
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Forgot your password?'), findsOneWidget);
+      expect(
+        find.text(
+          "Password reset isn't available in this version of SwipeToEat. "
+          'Please contact the SwipeToEat team for help.',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(SignInScreen), findsOneWidget);
     });
   });
 }

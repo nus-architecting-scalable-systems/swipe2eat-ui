@@ -21,6 +21,6 @@ void main() {
     await tester.tap(find.text('Forgot Password?'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Send Reset Code'), findsOneWidget);
+    expect(find.text('Forgot your password?'), findsOneWidget);
   });
 }
