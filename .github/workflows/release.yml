@@ -15,7 +15,6 @@ on:
         options:
           - all
           - mobile
-          - web
           - android
       release_notes:
         description: Optional release notes body
@@ -25,91 +24,8 @@ on:
 permissions:
   actions: read
   contents: write
-  id-token: write   # 新增: AWS OIDC 必需 (workflow 跟 GitHub OIDC provider 拿短期 token)
 
 jobs:
-  deploy-web:
-    name: deploy-web
-    if: ${{ inputs.target_platforms == 'all' || inputs.target_platforms == 'web' }}
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v5
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.41.6
-          channel: stable
-          cache: true
-      - run: flutter pub get
-      - run: bash .github/scripts/materialize_dart_defines.sh prod "$RUNNER_TEMP/dart-defines.json"
-        env:
-          DART_DEFINES_JSON_BASE64: ${{ secrets.PROD_DART_DEFINES_JSON_BASE64 }}
-      - run: flutter build web --release --dart-define-from-file="$RUNNER_TEMP/dart-defines.json"
-
-      - name: Fix Flutter base href for prod subpath
-        run: |
-          sed -i 's|<base href="/">|<base href="/swipetoeat-portal/">|g' build/web/index.html
-
-      # ===== AWS deploy (production subpath: /swipetoeat-portal/) =====
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ap-southeast-1
-
-      - name: Deploy production to S3 + CloudFront
-        run: |
-          set -euo pipefail
-
-          aws s3 sync build/web "s3://${{ vars.S3_BUCKET }}/swipetoeat-portal/" \
-            --delete \
-            --cache-control "public,max-age=300,must-revalidate"
-
-          # index.html 必须 no-cache, 否则用户拿到旧 index 指向已删除的 hash 文件
-          aws s3 cp build/web/index.html "s3://${{ vars.S3_BUCKET }}/swipetoeat-portal/index.html" \
-            --cache-control "public,max-age=0,must-revalidate"
-
-          # 触发 CloudFront 缓存失效
-          INVALIDATION_ID=$(aws cloudfront create-invalidation \
-            --distribution-id ${{ vars.CF_DISTRIBUTION_ID }} \
-            --paths "/swipetoeat-portal/*" \
-            --query 'Invalidation.Id' --output text)
-
-          PROD_URL="https://${{ vars.CF_DOMAIN_NAME }}/swipetoeat-portal/"
-
-          {
-            echo "### Web Production Deploy (AWS)"
-            echo
-            echo "- S3 bucket: \`${{ vars.S3_BUCKET }}\`"
-            echo "- CloudFront invalidation: \`$INVALIDATION_ID\`"
-            echo "- Production URL: $PROD_URL"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      # ===== Netlify deploy (FALLBACK - 1-2 周观察期后从下个 PR 删除) =====
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "20"
-          package-manager-cache: false
-      - run: npm install -g netlify-cli
-      - name: Netlify production deploy (fallback)
-        continue-on-error: true   # AWS 是主, Netlify 失败不阻塞 release
-        run: netlify deploy --dir=build/web --prod
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-      - name: Package web release artifact
-        run: |
-          set -euo pipefail
-
-          mkdir -p dist
-          (cd build/web && zip -qr ../../dist/release-web-build.zip .)
-      - uses: actions/upload-artifact@v6
-        with:
-          name: release-web-build
-          path: dist/release-web-build.zip
-          if-no-files-found: error
-          retention-days: 30
-
   deploy-android:
     name: deploy-android
     if: ${{ inputs.target_platforms == 'all' || inputs.target_platforms == 'mobile' || inputs.target_platforms == 'android' }}
@@ -265,7 +181,6 @@ jobs:
   github-release:
     name: github-release
     needs:
-      - deploy-web
       - deploy-android
       - deploy-ios
     if: ${{ always() && !contains(join(needs.*.result, ','), 'failure') && !contains(join(needs.*.result, ','), 'cancelled') }}
@@ -282,7 +197,7 @@ jobs:
           set -euo pipefail
 
           # GitHub release assets are flat. Keep single-file artifacts such as APKs
-          # as direct assets, and zip multi-file artifacts such as web/desktop bundles.
+          # as direct assets, and zip any multi-file artifacts.
           mkdir -p dist/release-assets
           find dist/artifacts -mindepth 1 -maxdepth 1 -type d | sort | while read -r artifact_dir; do
             artifact_name=$(basename "$artifact_dir")
