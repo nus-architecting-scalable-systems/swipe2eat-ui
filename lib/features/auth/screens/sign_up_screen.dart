@@ -96,7 +96,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String _formatDate(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
-  Future<void> _pickDateOfBirth() async {
+  Future<void> _pickDateOfBirth(FormFieldState<DateTime> field) async {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
@@ -110,7 +110,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _selectedDateOfBirth = picked;
       });
-      _formKey.currentState?.validate();
+      field.didChange(picked);
     }
   }
 
@@ -328,6 +328,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Color(0xFF6B7280),
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   textCapitalization: TextCapitalization.words,
                   validator: _validateName,
                   enabled: !_isLoading,
@@ -371,6 +372,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Color(0xFF6B7280),
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   keyboardType: TextInputType.text,
                   validator: _validateUsername,
                   enabled: !_isLoading,
@@ -414,6 +416,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Color(0xFF6B7280),
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   items: _genderOptions.map((String gender) {
                     return DropdownMenuItem<String>(
                       value: gender,
@@ -433,13 +436,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                 // Date of Birth Field
                 FormField<DateTime>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (_) => _validateDateOfBirth(),
                   builder: (FormFieldState<DateTime> field) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         InkWell(
-                          onTap: _isLoading ? null : _pickDateOfBirth,
+                          onTap: _isLoading
+                              ? null
+                              : () => _pickDateOfBirth(field),
                           borderRadius: BorderRadius.circular(12),
                           child: InputDecorator(
                             decoration: InputDecoration(
@@ -538,6 +544,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Color(0xFF6B7280),
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   items: _cities.map((String city) {
                     return DropdownMenuItem<String>(
                       value: city,
@@ -600,6 +607,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   obscureText: !_showPassword,
                   validator: _validatePassword,
                   enabled: !_isLoading,
@@ -656,6 +664,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   obscureText: !_showConfirmPassword,
                   validator: _validateConfirmPassword,
                   enabled: !_isLoading,

@@ -119,5 +119,45 @@ void main() {
         expect(find.text('Please select your date of birth'), findsOneWidget);
       },
     );
+
+    testWidgets('selecting date of birth does not validate untouched fields', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SignUpScreen()));
+
+      final dateOfBirthField = find
+          .widgetWithText(InputDecorator, 'Select your date of birth')
+          .last;
+      await tester.ensureVisible(dateOfBirthField);
+      await tester.tap(dateOfBirthField);
+      await tester.pumpAndSettle();
+
+      final today = DateTime.now();
+      await tester.tap(find.text('${today.day}').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Please select a city'), findsNothing);
+      expect(find.text('Password is required'), findsNothing);
+      expect(find.text('Please confirm your password'), findsNothing);
+    });
+
+    testWidgets('selecting a city clears its validation error', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SignUpScreen()));
+
+      await tester.ensureVisible(find.text('Sign Up'));
+      await tester.tap(find.text('Sign Up'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Please select a city'), findsOneWidget);
+
+      await tester.tap(find.byType(DropdownButtonFormField<String>).last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Singapore').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Please select a city'), findsNothing);
+    });
   });
 }
