@@ -4,7 +4,7 @@ import 'package:swipe2eat_ui/core/config/api_config.dart';
 void main() {
   group('ApiConfig', () {
     test('uses the default base URL in tests', () {
-      expect(ApiConfig.baseUrl, 'https://dev.keiyam.me');
+      expect(ApiConfig.baseUrl, 'http://nus-archss-alb-dev-126330082.ap-southeast-1.elb.amazonaws.com');
     });
 
     test('routes local requests to the separate service ports', () {

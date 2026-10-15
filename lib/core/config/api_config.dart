@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String _defaultBaseUrl = 'https://dev.keiyam.me';
+  static const String _defaultBaseUrl = 'http://nus-archss-alb-dev-126330082.ap-southeast-1.elb.amazonaws.com';
 
   static const String _defaultLocalPreference =
       'http://localhost:8080/api/v1/preference';

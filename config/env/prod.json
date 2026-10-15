@@ -1,4 +1,4 @@
 {
   "APP_ENV": "prod",
-  "API_BASE_URL": "https://dev.keiyam.me"
+  "API_BASE_URL": "http://nus-archss-alb-dev-126330082.ap-southeast-1.elb.amazonaws.com"
 }
