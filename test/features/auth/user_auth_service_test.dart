@@ -122,6 +122,30 @@ void main() {
     });
 
     test(
+      'prefers the backend message over its machine-readable error code',
+      () async {
+        final client = MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'error': 'INVALID_CREDENTIALS',
+              'message': 'Invalid username or password.',
+            }),
+            401,
+          ),
+        );
+
+        final result = await UserAuthService.signIn(
+          username: 'user123',
+          password: 'wrong',
+          client: client,
+        );
+
+        expect(result['success'], isFalse);
+        expect(result['error'], equals('Invalid username or password.'));
+      },
+    );
+
+    test(
       'does not call unsupported refresh or password reset endpoints',
       () async {
         final client = MockClient((_) async {

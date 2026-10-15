@@ -237,9 +237,9 @@ class UserAuthService {
 
   static String _extractError(Map<String, dynamic> body, int statusCode) {
     return _firstString(_candidateMaps(body), const [
-          'error',
           'message',
           'detail',
+          'error',
           'error_description',
         ]) ??
         'Request failed with status $statusCode.';
