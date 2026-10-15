@@ -1,13 +1,12 @@
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/food_item.dart';
 import '../../core/state/favorites_store.dart';
 import '../../core/services/preferences_service.dart';
+import '../../core/services/user_service.dart';
 import '../../core/widgets/loading_placeholder.dart';
 import '../favorites/food_detail_screen.dart';
-import '../auth/services/token_storage.dart';
 import 'services/food_service.dart';
 
 class DiscoverScreen extends StatefulWidget {
@@ -78,26 +77,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     try {
       final results = await Future.wait<Object?>([
         SharedPreferences.getInstance(),
-        TokenStorage.getIdToken(),
+        UserService.getUserProfile(),
       ]);
       final prefs = results[0] as SharedPreferences;
-      final idToken = results[1] as String?;
+      final profile = results[1] as Map<String, dynamic>?;
       if (!mounted) return;
 
-      String? city;
-      if (idToken != null && idToken.isNotEmpty) {
-        final parts = idToken.split('.');
-        if (parts.length == 3) {
-          final normalized = base64Url.normalize(parts[1]);
-          final decoded = utf8.decode(base64Url.decode(normalized));
-          final payload = jsonDecode(decoded);
-          if (payload is Map) {
-            city = (payload['custom:City'] ?? payload['city'])
-                ?.toString()
-                .trim();
-          }
-        }
-      }
+      final city = profile?['city']?.toString().trim();
 
       final cuisines = prefs.getStringList(_prefsCuisinesKey);
       final budget = prefs.getString(_prefsBudgetKey);

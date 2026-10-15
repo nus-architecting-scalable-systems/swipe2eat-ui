@@ -73,7 +73,7 @@ void main() {
       });
       FavoritesStore.instance.clear();
 
-      final token = createToken({'name': 'Taylor', 'custom:City': 'Singapore'});
+      final token = createToken({'sub': 'user-123', 'exp': 9999999999});
       await TokenStorage.saveTokens(
         idToken: token,
         accessToken: 'access-token',
@@ -98,6 +98,9 @@ void main() {
         method: 'GET',
         url: '${ApiConfig.userBaseUrl}/user-123',
         response: StubHttpResponse.json({
+          'id': 'user-123',
+          'name': 'Taylor',
+          'city': 'Singapore',
           'gender': 'female',
           'dateOfBirth': '1995-04-12',
         }),

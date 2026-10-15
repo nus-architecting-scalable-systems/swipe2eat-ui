@@ -147,7 +147,7 @@ void main() {
       'loads display name, backend profile, and local preferences on startup',
       (tester) async {
         seedLocalPreferences(budget: null, budgetLabel: 'Premium');
-        await saveSession(tokenPayload: {'given_name': 'Casey'});
+        await saveSession(tokenPayload: {'sub': 'user-123', 'exp': 9999999999});
         FavoritesStore.instance.add(sampleFavorite());
         FavoritesStore.instance.add(
           sampleFavorite(
@@ -157,7 +157,11 @@ void main() {
           ),
         );
         stubProfileSequence([
-          {'gender': 'non-binary', 'dateOfBirth': '1992-03-04'},
+          {
+            'name': 'Casey',
+            'gender': 'non-binary',
+            'dateOfBirth': '1992-03-04',
+          },
         ]);
 
         await pumpProfile(tester);

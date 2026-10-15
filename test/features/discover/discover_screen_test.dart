@@ -180,6 +180,15 @@ void main() {
         await saveSession();
         httpOverrides.addResponse(
           method: 'GET',
+          url: '${ApiConfig.userBaseUrl}/user-123',
+          response: StubHttpResponse.json({
+            'id': 'user-123',
+            'name': 'Taylor',
+            'city': 'Singapore',
+          }),
+        );
+        httpOverrides.addResponse(
+          method: 'GET',
           url: '${ApiConfig.foodBaseUrl}?userId=user-123',
           response: StubHttpResponse.json([
             foodJson(
@@ -206,6 +215,39 @@ void main() {
         expect(find.text('Rich coconut broth'), findsOneWidget);
       },
     );
+
+    for (final profileResponse in [
+      StubHttpResponse.json({'id': 'user-123', 'name': 'Taylor', 'city': ' '}),
+      const StubHttpResponse(statusCode: 500, body: '{}'),
+      StubHttpResponse.json({'id': 'user-123', 'name': 'Taylor'}),
+    ]) {
+      testWidgets('falls back to Your city when profile city is unavailable', (
+        tester,
+      ) async {
+        await saveSession(tokenPayload: {'sub': 'user-123', 'exp': 9999999999});
+        httpOverrides.addResponse(
+          method: 'GET',
+          url: '${ApiConfig.userBaseUrl}/user-123',
+          response: profileResponse,
+        );
+        httpOverrides.addResponse(
+          method: 'GET',
+          url: '${ApiConfig.foodBaseUrl}?userId=user-123',
+          response: StubHttpResponse.json([
+            foodJson(
+              id: '99999999-9999-4999-8999-999999999999',
+              name: 'Nasi Lemak',
+              restaurant: 'Local Kitchen',
+            ),
+          ]),
+        );
+
+        await pumpDiscover(tester);
+
+        expect(find.text('Your city'), findsOneWidget);
+        expect(find.text('Nasi Lemak'), findsOneWidget);
+      });
+    }
 
     testWidgets('shows the fetch error state and retries successfully', (
       tester,

@@ -89,7 +89,9 @@ class UserService {
 
   /// Fetches the current user's profile from the backend.
   /// Returns a map with user fields (name, city, gender, dateOfBirth) or null on failure.
-  static Future<Map<String, dynamic>?> getUserProfile() async {
+  static Future<Map<String, dynamic>?> getUserProfile({
+    http.Client? client,
+  }) async {
     try {
       final userId = await TokenStorage.getUserId();
       final accessToken = await TokenStorage.getAccessToken();
@@ -107,6 +109,7 @@ class UserService {
         uri,
         headers: headers,
         tokenType: AuthTokenType.accessToken,
+        client: client,
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {

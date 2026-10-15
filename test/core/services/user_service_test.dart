@@ -7,6 +7,44 @@ import 'package:swipe2eat_ui/core/services/user_service.dart';
 import 'package:swipe2eat_ui/features/auth/services/token_storage.dart';
 
 void main() {
+  group('UserService.getUserProfile', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    test('returns the backend profile including city', () async {
+      await TokenStorage.saveTokens(
+        idToken: 'id-token',
+        accessToken: 'access-token',
+        userId: 'user-123',
+      );
+
+      final client = MockClient((request) async {
+        expect(request.method, equals('GET'));
+        expect(
+          request.url.toString(),
+          equals('${ApiConfig.userBaseUrl}/user-123'),
+        );
+        expect(request.headers['Authorization'], equals('Bearer access-token'));
+        expect(request.headers['X-Id-Token'], equals('id-token'));
+
+        return http.Response(
+          '{"id":"user-123","name":"Taylor","city":"Singapore"}',
+          200,
+          headers: {'Content-Type': 'application/json'},
+        );
+      });
+
+      // getUserProfile uses the shared authenticated client, so this test
+      // verifies the public contract through the same HTTP abstraction used
+      // by the application.
+      final profile = await UserService.getUserProfile(client: client);
+
+      expect(profile, isNotNull);
+      expect(profile!['city'], equals('Singapore'));
+    });
+  });
+
   group('UserService.createUserInBackend', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/services/user_service.dart';
@@ -73,7 +72,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserNameFromToken();
     _loadPreferences();
     _loadUserProfile();
     // Listen for preference updates
@@ -93,6 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserProfile() async {
     final profile = await UserService.getUserProfile();
     if (!mounted || profile == null) return;
+    final name = profile['name']?.toString().trim();
     final gender = profile['gender'] as String?;
     final dobRaw = profile['dateOfBirth'] as String?;
     String dobDisplay = "Not set";
@@ -104,35 +103,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
     setState(() {
+      if (name != null && name.isNotEmpty) {
+        _displayName = name;
+      }
       _genderDisplay = gender != null && gender.isNotEmpty ? gender : "Not set";
       _dobDisplay = dobDisplay;
     });
-  }
-
-  Future<void> _loadUserNameFromToken() async {
-    try {
-      final idToken = await TokenStorage.getIdToken();
-      if (idToken == null || idToken.isEmpty) return;
-
-      final parts = idToken.split('.');
-      if (parts.length != 3) return;
-
-      final normalized = base64Url.normalize(parts[1]);
-      final decoded = utf8.decode(base64Url.decode(normalized));
-      final payload = jsonDecode(decoded);
-      if (payload is! Map) return;
-
-      final name = (payload['name'] ?? payload['given_name'])
-          ?.toString()
-          .trim();
-      if (!mounted || name == null || name.isEmpty) return;
-
-      setState(() {
-        _displayName = name;
-      });
-    } catch (_) {
-      // Keep fallback display name when token name is unavailable.
-    }
   }
 
   Future<void> _handleLogout() async {
