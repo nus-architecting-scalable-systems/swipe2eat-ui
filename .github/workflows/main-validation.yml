@@ -135,70 +135,7 @@ jobs:
           script: |
             flutter build apk --debug --flavor dev --target integration_test/app_smoke_test.dart --dart-define-from-file="$RUNNER_TEMP/dart-defines.json"
             flutter test --reporter expanded integration_test/app_smoke_test.dart -d emulator-5554 --flavor dev --dart-define-from-file="$RUNNER_TEMP/dart-defines.json"
-
-  android-testlab-packages:
-    name: android-testlab-packages
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: "17"
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.41.6
-          channel: stable
-          cache: false
-      - run: flutter pub get
-      - run: bash .github/scripts/materialize_dart_defines.sh dev "$RUNNER_TEMP/dart-defines.json"
-      - run: flutter build apk --debug --flavor dev --target integration_test/app_smoke_test.dart --dart-define-from-file="$RUNNER_TEMP/dart-defines.json"
-      - run: ./gradlew app:assembleDevDebugAndroidTest -Ptarget=integration_test/app_smoke_test.dart
-        working-directory: android
-      - uses: actions/upload-artifact@v6
-        with:
-          name: android-debug-apk
-          path: build/app/outputs/flutter-apk/app-dev-debug.apk
-          if-no-files-found: error
-          retention-days: 14
-      - uses: actions/upload-artifact@v6
-        with:
-          name: android-test-apk
-          path: build/app/outputs/apk/androidTest/dev/debug/app-dev-debug-androidTest.apk
-          if-no-files-found: error
-          retention-days: 14
-
-  ios-testlab-package:
-    name: ios-testlab-package
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.41.6
-          channel: stable
-          cache: false
-      - run: flutter pub get
-      - run: pod install
-        working-directory: ios
-      - run: |
-          xcodebuild \
-            -workspace ios/Runner.xcworkspace \
-            -scheme dev \
-            -configuration Debug \
-            -derivedDataPath build/ios_testlab \
-            -sdk iphoneos \
-            CODE_SIGNING_ALLOWED=NO \
-            build-for-testing
-      - run: |
-          cd build/ios_testlab/Build/Products
-          zip -r ios-testlab.zip Debug-iphoneos *.xctestrun
-      - uses: actions/upload-artifact@v6
-        with:
-          name: ios-testlab
-          path: build/ios_testlab/Build/Products/ios-testlab.zip
-          if-no-files-found: error
-          retention-days: 14
+            (cd android && ./gradlew app:connectedDevDebugAndroidTest -Ptarget=integration_test/app_smoke_test.dart)
 
   linux-build:
     name: linux-build

@@ -294,6 +294,18 @@ As of this update:
 
 See [test/TESTSUITE_README.md](test/TESTSUITE_README.md) for the test layout and focused test commands.
 
+### Android Firebase Test Lab
+
+`Main Validation` runs `integration_test/app_smoke_test.dart` on a GitHub Android emulator and also runs its native `MainActivityTest` instrumentation APK there. After **successful validation on `main`**, the separate **Android Firebase Test Lab** workflow checks out that validated commit and runs the same `dev` test on one virtual `MediumPhone.arm` / API 35 device (`en`, portrait, five-minute timeout). A Test Lab failure fails only its report-only workflow; staging distribution is independent. To rerun without changing code, use **Actions -> Android Firebase Test Lab -> Run workflow** and select `main`.
+
+One-time cloud setup:
+
+1. Create a **dedicated Firebase project on the Spark plan** for this smoke test. Do not use the staging distribution project. Enable Firebase Test Lab for the project, and create a service account with a JSON key in that project.
+2. Grant that service account project-level `roles/editor` **only in the dedicated test project**. Firebase requires this for `gcloud` runs using its default results bucket. Do not reuse the App Distribution credential. The first remote run is the definitive IAM/permissions check.
+3. In this repository, open **Settings -> Environments -> New environment** and create `test-lab`. Under **Environment variables**, set `FIREBASE_TEST_LAB_PROJECT_ID` to the Firebase project ID. Under **Environment secrets**, set `FIREBASE_TEST_LAB_SERVICE_ACCOUNT_JSON_BASE64` to the single-line base64 encoding of the service-account JSON (for example, `base64 < service-account.json | tr -d '\n'` on macOS/Linux). Do not commit the JSON key or its encoded value.
+
+The workflow checks the key's project ID, authenticates, verifies the catalog lists `MediumPhone.arm` as virtual with API 35, builds both APKs, and checks the instrumentation APK contains `MainActivityTest`. It uses Test Lab's **default results storage**; no custom bucket setting is needed. The job summary links to Firebase results, and GitHub artifacts retain the APKs, CLI log, and `result.json` for 14 days. Spark's current no-cost allowance is **10 virtual test runs per project per day**; quota exhaustion fails this report-only job and does not block staging. See [Firebase quotas](https://firebase.google.com/docs/test-lab/usage-quotas-pricing) and [Firebase IAM guidance](https://firebase.google.com/docs/test-lab/android/iam-permissions-reference). Test Lab's planned shutdown on September 30, 2027 requires a separate migration to Developer Device Platform.
+
 ## Dependencies
 
 Runtime dependencies:
